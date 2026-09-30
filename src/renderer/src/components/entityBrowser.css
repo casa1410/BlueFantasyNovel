@@ -1,0 +1,407 @@
+/*
+ * Estilos compartidos por Personajes, Lore y Bestiario:
+ * explorador (lista + ficha), formularios de ficha y selector de imagen.
+ */
+
+.entity-browser {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Lista                                                                    */
+/* ------------------------------------------------------------------------ */
+
+.entity-list {
+  display: flex;
+  flex-direction: column;
+  width: 290px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  background: var(--bg-sunken);
+}
+.entity-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 14px 12px 18px;
+}
+.entity-list-header h2 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+}
+.entity-search {
+  margin: 0 12px 10px;
+}
+.entity-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 12px;
+}
+.entity-group-label {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.entity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.entity-item:hover {
+  background: var(--surface-hover);
+}
+.entity-item.is-active {
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.entity-item-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.entity-item-text strong,
+.entity-item-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.entity-item-text small {
+  color: var(--text-faint);
+}
+.entity-no-results {
+  padding: 12px;
+  font-size: 13px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Ficha                                                                    */
+/* ------------------------------------------------------------------------ */
+
+.entity-detail {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+.entity-empty {
+  height: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.entity-form {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
+}
+.entity-form-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.entity-form-identity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.entity-name-input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 600;
+}
+.entity-name-input:focus {
+  outline: none;
+}
+.entity-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.entity-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.entity-form-actions .icon-btn:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.select-inline {
+  width: auto;
+  padding: 6px 10px;
+}
+.input-inline {
+  width: 160px;
+  padding: 6px 10px;
+}
+
+.entity-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.entity-sections .textarea {
+  min-height: 120px;
+}
+.entity-section-wide {
+  grid-column: 1 / -1;
+}
+@media (max-width: 1100px) {
+  .entity-sections {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Selector de color (personajes) */
+.color-swatches {
+  display: flex;
+  gap: 6px;
+  margin-left: 6px;
+}
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.12s;
+}
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+.color-swatch.is-active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Selector de imagen                                                       */
+/* ------------------------------------------------------------------------ */
+
+.image-picker {
+  position: relative;
+  flex-shrink: 0;
+}
+.image-picker-button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 1px dashed var(--border-strong);
+  background: var(--surface-raised);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+.image-picker.has-image .image-picker-button {
+  border-style: solid;
+  border-color: transparent;
+}
+.image-picker-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.image-picker-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(5, 10, 25, 0.55);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.image-picker-button:hover .image-picker-overlay,
+.image-picker-button:focus-visible .image-picker-overlay {
+  opacity: 1;
+}
+.image-picker-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(5, 10, 25, 0.75);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+}
+.image-picker:hover .image-picker-remove {
+  opacity: 1;
+}
+.image-picker-remove:hover {
+  background: var(--danger);
+}
+
+.image-picker-portrait {
+  width: 96px;
+  height: 96px;
+}
+.image-picker-portrait .image-picker-button {
+  border-radius: 50%;
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.image-picker-portrait .image-picker-remove {
+  top: 2px;
+  right: 2px;
+}
+
+.image-picker-square {
+  width: 120px;
+  height: 120px;
+}
+.image-picker-square .image-picker-button {
+  border-radius: var(--radius-lg);
+  color: var(--text-faint);
+}
+
+.image-picker-banner {
+  width: 100%;
+  height: 180px;
+  margin-bottom: 24px;
+}
+.image-picker-banner .image-picker-button {
+  border-radius: var(--radius-lg);
+  color: var(--text-faint);
+}
+.image-picker-banner:not(.has-image) {
+  height: 72px;
+}
+.image-picker-banner:not(.has-image) .image-picker-overlay {
+  opacity: 1;
+  background: transparent;
+  color: var(--text-muted);
+}
+.image-picker-banner:not(.has-image) .image-picker-button:hover {
+  border-color: var(--accent);
+}
+.image-picker-banner:not(.has-image) .image-picker-button:hover .image-picker-overlay {
+  color: var(--accent-strong);
+}
+
+.entity-list-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.entity-aliases {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+/* Apariciones en el manuscrito */
+.appearances {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.appearances h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+.appearances-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.appearance-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.appearance-chip:hover {
+  border-color: var(--accent);
+}
+.appearance-chip strong {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  text-align: center;
+}
+
+/* Importar de otra historia */
+.import-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 4px 2px;
+}
+
+.input-inline.wide {
+  width: 260px;
+}
+.lineage-motto {
+  padding: 6px 10px;
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+.appearance-chip.is-static {
+  cursor: default;
+  padding-right: 10px;
+}
+.appearance-chip.is-static:hover {
+  border-color: var(--border);
+}

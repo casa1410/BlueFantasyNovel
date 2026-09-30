@@ -1,0 +1,324 @@
+.cover-studio {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.cover-studio .timeline-header h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.cover-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Vista previa 3D                                                          */
+/* ------------------------------------------------------------------------ */
+
+.cover-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  overflow: hidden;
+  background: radial-gradient(600px 400px at 50% 40%, var(--accent-soft), transparent 70%);
+}
+.cover-views {
+  width: 280px;
+}
+.cover-hint {
+  font-size: 12px;
+  text-align: center;
+}
+
+.book-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 60px 10px;
+  perspective: 1600px;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.book-stage.is-dragging {
+  cursor: grabbing;
+}
+.book {
+  position: relative;
+  transform-style: preserve-3d;
+}
+.book-animate .book {
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.book-face {
+  top: 0;
+  left: 0;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border-radius: 1px 3px 3px 1px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+.book-pages {
+  background:
+    repeating-linear-gradient(90deg, #f3ecdc 0 1px, #e3d8c0 1px 2px),
+    #efe6d2;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.25);
+}
+.book-pages.is-horizontal {
+  background:
+    repeating-linear-gradient(0deg, #f3ecdc 0 1px, #e3d8c0 1px 2px),
+    #efe6d2;
+}
+.book-shadow {
+  height: 26px;
+  margin-top: 26px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.45), transparent);
+  filter: blur(4px);
+}
+
+/* Contenido de las caras */
+.cover-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.cover-frame {
+  position: absolute;
+  border: 1px solid;
+  pointer-events: none;
+}
+.cover-title-block {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.cover-title {
+  line-height: 1.05;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.55);
+  overflow-wrap: anywhere;
+}
+.cover-rule {
+  width: 16%;
+  margin: 0.6em 0 0.4em;
+}
+.cover-subtitle {
+  font-style: italic;
+  opacity: 0.9;
+}
+.cover-author {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 88%;
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.cover-face.spine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.spine-text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 28px;
+  transform: rotate(90deg);
+  white-space: nowrap;
+  letter-spacing: 0.08em;
+}
+.spine-text small {
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+.cover-face.back {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14% 12% 10%;
+}
+.cover-back-text {
+  line-height: 1.5;
+  white-space: pre-wrap;
+  text-align: justify;
+}
+.cover-barcode {
+  align-self: flex-end;
+  display: flex;
+  gap: 2px;
+  height: 11%;
+  padding: 6px;
+  background: #fff;
+}
+.cover-barcode span {
+  background: #111;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Controles                                                                */
+/* ------------------------------------------------------------------------ */
+
+.cover-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  overflow-y: auto;
+}
+.cover-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+}
+.cover-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Combinaciones de color */
+.cover-schemes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+.cover-scheme {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.cover-scheme:hover {
+  color: var(--text);
+}
+.cover-scheme.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+.cover-scheme-dot {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Ilustraciones: una fila por cara */
+.cover-art-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cover-art-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.cover-art-thumb {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 81px;
+  flex-shrink: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px dashed var(--border-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-faint);
+  cursor: pointer;
+}
+.cover-art-thumb:hover {
+  border-color: var(--accent);
+  color: var(--accent-strong);
+}
+.cover-art-thumb.has-image {
+  border-style: solid;
+}
+.cover-art-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cover-art-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+.cover-art-contrast {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--text-faint);
+}
+.cover-art-contrast input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+/* Campos */
+.cover-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cover-fields label {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.cover-fields label.is-stacked {
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+.cover-fields input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.cover-fields .input,
+.cover-fields .select,
+.cover-fields .textarea {
+  padding: 7px 10px;
+}

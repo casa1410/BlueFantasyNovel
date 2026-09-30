@@ -1,0 +1,31 @@
+.lore-category-icon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: var(--radius-lg);
+}
+.lore-tags-input {
+  flex: 1;
+  min-width: 220px;
+  padding: 6px 10px;
+}
+.lore-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.lore-tag {
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  font-size: 12px;
+}
+.lore-body.textarea {
+  min-height: 340px;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.7;
+}

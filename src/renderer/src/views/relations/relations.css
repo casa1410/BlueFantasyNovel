@@ -1,0 +1,185 @@
+.relations {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.relations-empty {
+  height: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.relations-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.relations-tabs {
+  width: 420px;
+}
+.relations-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.relations-canvas {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.relations-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  pointer-events: none;
+}
+.relations-toolbar > * {
+  pointer-events: auto;
+}
+.relations-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.legend-chip > span {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+.legend-chip > span.is-dashed {
+  height: 0;
+  border-top: 2px dashed;
+}
+.legend-chip.is-off {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+.legend-chip.is-static {
+  cursor: default;
+}
+
+/* Tarjeta de personaje dentro del diagrama */
+.character-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 180px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid;
+  border-left-width: 4px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-ui);
+}
+.character-node.is-selected {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.character-node-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.character-node-text strong,
+.character-node-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.character-node-text small {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+.character-node .react-flow__handle {
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--surface);
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.character-node:hover .react-flow__handle,
+.react-flow__node.selected .react-flow__handle {
+  opacity: 1;
+}
+
+/* Colores del lienzo según el tema de la app */
+.relations .react-flow {
+  --xy-background-color: var(--bg);
+  --xy-background-pattern-color: var(--border);
+  --xy-controls-button-background-color: var(--surface);
+  --xy-controls-button-background-color-hover: var(--surface-hover);
+  --xy-controls-button-color: var(--text-muted);
+  --xy-controls-button-border-color: var(--border);
+}
+
+/* Panel de edición */
+.relation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 320px;
+  flex-shrink: 0;
+  padding: 14px 16px;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  overflow-y: auto;
+}
+.relation-panel header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.relation-panel header h3 {
+  flex: 1;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.relation-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 15px;
+}
+.relation-summary > span {
+  font-size: 20px;
+}
+.relation-panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.legend-chip > span.is-box {
+  width: 12px;
+  height: 12px;
+  border: 3px solid;
+  border-radius: 3px;
+  background: transparent;
+}

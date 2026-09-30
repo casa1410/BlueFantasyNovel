@@ -1,0 +1,134 @@
+.plots {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.plots-empty {
+  flex: 1;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.plots-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+}
+.plots-grid {
+  border-collapse: separate;
+  border-spacing: 6px;
+}
+.plots-grid th,
+.plots-grid td {
+  vertical-align: top;
+}
+.plots-corner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  min-width: 250px;
+  padding: 6px 10px;
+  background: var(--bg);
+  font-size: 12px;
+  text-align: left;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.plots-chapter {
+  width: 190px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plots-chapter:hover {
+  border-color: var(--accent);
+}
+.plots-row-head {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 250px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+  font-weight: normal;
+}
+.plots-name {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.plots-name:focus,
+.plots-description:focus {
+  outline: none;
+}
+.plots-description {
+  width: 100%;
+  margin-top: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  resize: none;
+}
+.plots-row-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+}
+.plots-row-foot .color-swatches {
+  margin-left: 0;
+  gap: 4px;
+}
+.plots-row-foot .color-swatch {
+  width: 14px;
+  height: 14px;
+}
+.plots-row-foot .save-indicator {
+  font-size: 11px;
+}
+.plots-grid td textarea {
+  display: block;
+  width: 190px;
+  min-height: 110px;
+  padding: 8px 10px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  resize: vertical;
+}
+.plots-grid td.has-beat textarea {
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--plot-color);
+  background: var(--surface);
+}
+.plots-grid td textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}

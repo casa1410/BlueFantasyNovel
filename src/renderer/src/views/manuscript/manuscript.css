@@ -1,0 +1,705 @@
+.manuscript-empty,
+.manuscript-loading {
+  height: 100%;
+}
+
+.editor-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Barra de herramientas                                                    */
+/* ------------------------------------------------------------------------ */
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.toolbar-divider {
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: var(--border);
+}
+.filler-toggle {
+  margin-right: 4px;
+}
+.filler-toggle.is-active {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+.filler-badge {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1b1405;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* En modo enfoque la barra se atenúa y reaparece al pasar el ratón. */
+.editor-shell.is-focus .editor-toolbar {
+  border-bottom-color: transparent;
+  background: transparent;
+  opacity: 0.12;
+  transition: opacity 0.25s;
+}
+.editor-shell.is-focus .editor-toolbar:hover {
+  opacity: 1;
+}
+.editor-shell.is-focus .status-bar {
+  opacity: 0.35;
+  border-top-color: transparent;
+  background: transparent;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Página                                                                   */
+/* ------------------------------------------------------------------------ */
+
+.editor-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+.editor-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 56px 48px 40vh; /* espacio final: la última línea no queda pegada abajo */
+  background:
+    radial-gradient(900px 400px at 50% -120px, rgba(91, 140, 255, 0.08), transparent 70%),
+    var(--bg);
+  cursor: text;
+}
+.editor-page {
+  max-width: var(--editor-width);
+  margin: 0 auto;
+}
+
+.editor-chapter-title {
+  width: 100%;
+  margin-bottom: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: var(--editor-font);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.editor-chapter-title:focus {
+  outline: none;
+}
+
+/* Tipografía del texto de la novela */
+.prose {
+  min-height: 50vh;
+  color: var(--page-text);
+  font-family: var(--editor-font);
+  font-size: var(--editor-font-size);
+  line-height: 1.8;
+  caret-color: var(--accent-strong);
+}
+.prose:focus {
+  outline: none;
+}
+.prose p {
+  margin: 0 0 0.9em;
+}
+.prose h2 {
+  margin: 1.6em 0 0.6em;
+  font-size: 1.45em;
+}
+.prose h3 {
+  margin: 1.4em 0 0.5em;
+  font-size: 1.2em;
+  color: var(--text-muted);
+}
+.prose blockquote {
+  margin: 1.2em 0;
+  padding: 0.2em 0 0.2em 1.2em;
+  border-left: 3px solid var(--accent);
+  color: var(--text-muted);
+  font-style: italic;
+}
+.prose ul,
+.prose ol {
+  margin: 0 0 0.9em;
+  padding-left: 1.4em;
+}
+.prose li p {
+  margin: 0.15em 0;
+}
+/* El separador de escena se ve como "* * *" centrado, como en los libros */
+.prose hr {
+  border: 0;
+  margin: 1.6em 0;
+  text-align: center;
+  color: var(--text-faint);
+}
+.prose hr::after {
+  content: '✦  ✦  ✦';
+  letter-spacing: 0.3em;
+}
+.prose hr.ProseMirror-selectednode {
+  color: var(--accent);
+}
+.prose a {
+  color: var(--accent-strong);
+}
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background: var(--surface-raised);
+}
+/* Texto de ejemplo cuando el capítulo está vacío */
+.prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--text-faint);
+  font-style: italic;
+  pointer-events: none;
+}
+
+.filler-word {
+  border-radius: 3px;
+  background: var(--filler-highlight);
+  box-shadow: 0 2px 0 -1px var(--gold);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Barra de estado                                                          */
+/* ------------------------------------------------------------------------ */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
+  padding: 0 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.25s;
+}
+.status-bar strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.status-bar .status-today {
+  color: var(--success);
+}
+.status-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gold);
+}
+.save-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.save-indicator.is-saved {
+  color: var(--text-faint);
+}
+.save-indicator.is-error {
+  color: var(--danger);
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/* Panel de referencia                                                      */
+/* ------------------------------------------------------------------------ */
+
+.reference-panel {
+  display: flex;
+  flex-direction: column;
+  width: var(--reference-width);
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  background: var(--surface);
+  animation: fade-in 0.15s;
+}
+.reference-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 10px 8px 16px;
+}
+.reference-header h3 {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.reference-tabs {
+  display: flex;
+  gap: 2px;
+  margin: 0 12px 10px;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+}
+.reference-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 28px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.reference-tab:hover {
+  color: var(--text);
+}
+.reference-tab.is-active {
+  background: var(--surface-raised);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+.reference-search {
+  margin: 0 12px 10px;
+}
+.reference-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 12px;
+}
+.reference-empty {
+  padding: 32px 16px;
+  font-size: 13px;
+}
+.reference-no-results {
+  padding: 12px;
+  font-size: 13px;
+}
+.reference-card {
+  border-radius: var(--radius);
+}
+.reference-card.is-expanded {
+  background: var(--surface-raised);
+  margin-bottom: 6px;
+}
+.reference-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.reference-card-head:hover {
+  background: var(--surface-hover);
+}
+.reference-card-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.reference-card-name small {
+  color: var(--text-faint);
+}
+.reference-chevron {
+  color: var(--text-faint);
+  transition: transform 0.15s;
+}
+.reference-card.is-expanded .reference-chevron {
+  transform: rotate(180deg);
+}
+.reference-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 4px 12px 12px;
+}
+.reference-detail span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.reference-detail p {
+  font-size: 13px;
+  white-space: pre-wrap;
+  color: var(--text-muted);
+}
+.reference-insert {
+  align-self: flex-start;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Menciones                                                                */
+/* ------------------------------------------------------------------------ */
+
+.mention {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  cursor: help;
+}
+.mention-characters {
+  text-decoration-color: var(--accent);
+}
+.mention-lore {
+  text-decoration-color: var(--success);
+}
+.mention-creatures {
+  text-decoration-color: var(--danger);
+}
+.mention-card {
+  position: fixed;
+  z-index: 90; /* por debajo de los modales (100) */
+  width: 300px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  pointer-events: none;
+  animation: fade-in 0.12s;
+}
+.mention-card header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.mention-card header div {
+  display: flex;
+  flex-direction: column;
+}
+.mention-card header small {
+  color: var(--text-faint);
+}
+.mention-card p {
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+.mention-card p span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Objetivo diario y sprint en la barra de estado                           */
+/* ------------------------------------------------------------------------ */
+
+.status-today-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.status-goal {
+  display: inline-block;
+  width: 60px;
+  height: 5px;
+  margin-left: 6px;
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  overflow: hidden;
+}
+.status-goal span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.status-goal.is-done span {
+  background: var(--success);
+}
+.status-goal-icon {
+  color: var(--success);
+}
+.status-sprint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.sprint-running {
+  margin-right: 4px;
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Historial de versiones                                                   */
+/* ------------------------------------------------------------------------ */
+
+.versions {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+  height: 420px;
+}
+.versions-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+.versions-list button {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.versions-list button:hover {
+  background: var(--surface-hover);
+}
+.versions-list button.is-active {
+  background: var(--accent-soft);
+}
+.versions-list small {
+  color: var(--text-faint);
+}
+.versions-preview {
+  overflow-y: auto;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  color: var(--page-text);
+  font-family: var(--editor-font);
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Tarjeta para redes                                                       */
+/* ------------------------------------------------------------------------ */
+
+.social-card {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 20px;
+  align-items: start;
+}
+.social-card-preview {
+  justify-self: center;
+  width: auto;
+  max-width: 100%;
+  height: 460px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.social-card-options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Buscar en el manuscrito                                                  */
+/* ------------------------------------------------------------------------ */
+
+.search-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.search-dialog .search-field input {
+  height: 38px;
+}
+.search-options {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 13px;
+}
+.search-results {
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.search-chapter h4 {
+  margin: 10px 0 4px;
+  font-size: 13px;
+}
+.search-match {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-family: var(--editor-font);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.search-match:hover {
+  background: var(--surface-hover);
+}
+.search-match mark {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: var(--gold-soft);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+/* Menciones de razas, linajes y glosario */
+.mention-races {
+  text-decoration-color: #b86bd9;
+}
+.mention-lineages {
+  text-decoration-color: var(--gold);
+}
+.mention-glossary {
+  text-decoration-style: dashed;
+  text-decoration-color: var(--text-faint);
+}
+
+/* Comentarios al margen */
+.comment-mark {
+  background: rgba(232, 196, 106, 0.22);
+  border-bottom: 2px solid var(--gold);
+  cursor: pointer;
+}
+.reference-tabs.is-icons .reference-tab {
+  position: relative;
+  padding: 0;
+}
+.reference-tab-badge {
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  min-width: 15px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1b1405;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 15px;
+}
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.comment-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+}
+.comment-card.is-active {
+  box-shadow: 0 0 0 2px var(--gold-soft);
+  border-color: var(--gold);
+}
+.comment-card.is-resolved {
+  opacity: 0.6;
+  border-left-color: var(--success);
+}
+.comment-quote {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-style: italic;
+  text-align: left;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.comment-text {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+.comment-text:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.comment-actions .icon-btn {
+  width: 26px;
+  height: 26px;
+}
+.comments-toggle {
+  align-self: center;
+}
+.status-draft {
+  color: var(--gold) !important;
+}

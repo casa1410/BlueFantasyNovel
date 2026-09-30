@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BlueFantasyNovel</title>
+    <!--
+      Política de seguridad: la interfaz solo puede cargar recursos propios.
+      Nada de scripts ni fuentes remotas; la aplicación funciona sin internet.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: bfn-asset:; font-src 'self' data:"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

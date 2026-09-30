@@ -1,0 +1,448 @@
+/*
+ * Estilos base y componentes genéricos reutilizables (botones, campos,
+ * modales, avisos). Los estilos de cada pantalla viven junto a ella.
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+::selection {
+  background: var(--accent-glow);
+}
+
+/* Barras de desplazamiento discretas */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Botones                                                                  */
+/* ------------------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: linear-gradient(180deg, #6a97ff, #4a78ec);
+  border-color: #6a97ff;
+  color: #fff;
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.btn-primary:hover {
+  background: linear-gradient(180deg, #7ea5ff, #5a86f5);
+  border-color: #86a9ff;
+}
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-muted);
+}
+.btn-ghost:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: transparent;
+}
+.btn-danger {
+  background: var(--danger-soft);
+  border-color: transparent;
+  color: var(--danger);
+}
+.btn-danger:hover {
+  background: rgba(255, 107, 122, 0.24);
+  border-color: transparent;
+}
+.btn-sm {
+  height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+/* Botón cuadrado solo con icono */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.icon-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.icon-btn.is-active {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.icon-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Campos de formulario                                                     */
+/* ------------------------------------------------------------------------ */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.field-hint {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.input,
+.textarea,
+.select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input:focus,
+.textarea:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.textarea {
+  resize: vertical;
+  min-height: 84px;
+  line-height: 1.55;
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-faint);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Modal                                                                    */
+/* ------------------------------------------------------------------------ */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(3, 6, 15, 0.66);
+  backdrop-filter: blur(4px);
+  animation: fade-in 0.15s ease-out;
+}
+.modal {
+  width: min(520px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: pop-in 0.18s ease-out;
+}
+.modal-lg {
+  width: min(880px, 100%);
+}
+.modal-header {
+  padding: 20px 24px 0;
+}
+.modal-header p {
+  margin-top: 6px;
+  color: var(--text-muted);
+}
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 0 24px 20px;
+}
+
+/* ------------------------------------------------------------------------ */
+/* Avisos (toasts)                                                          */
+/* ------------------------------------------------------------------------ */
+
+.toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 44px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 420px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow);
+  pointer-events: auto;
+  animation: slide-up 0.2s ease-out;
+}
+.toast.is-error {
+  border-left-color: var(--danger);
+}
+.toast.is-success {
+  border-left-color: var(--success);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Menú desplegable                                                         */
+/* ------------------------------------------------------------------------ */
+
+.dropdown {
+  position: relative;
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 290px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow);
+  animation: pop-in 0.12s ease-out;
+}
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.dropdown-item:hover {
+  background: var(--surface-hover);
+}
+.dropdown-item small {
+  margin-left: auto;
+  color: var(--text-faint);
+}
+
+/* ------------------------------------------------------------------------ */
+/* Utilidades                                                               */
+/* ------------------------------------------------------------------------ */
+
+.muted {
+  color: var(--text-muted);
+}
+.faint {
+  color: var(--text-faint);
+}
+.spacer {
+  flex: 1;
+}
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.empty-state h3 {
+  color: var(--text);
+  font-size: 18px;
+}
+.empty-state svg {
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Avatar circular con iniciales (se usa también en Personajes) */
+.avatar {
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Campo de búsqueda con icono */
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  color: var(--text-faint);
+}
+.search-field:focus-within {
+  border-color: var(--accent);
+}
+.search-field input {
+  flex: 1;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+.search-field input:focus {
+  outline: none;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar-rounded {
+  border-radius: 8px;
+}
+
+.dropdown-caption {
+  padding: 6px 10px 4px;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.dropdown-separator {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--border);
+}

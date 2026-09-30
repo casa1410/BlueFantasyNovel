@@ -1,0 +1,34 @@
+.danger-meter {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-faint);
+}
+.danger-meter .is-filled {
+  color: var(--danger);
+}
+.danger-meter.is-compact {
+  flex-shrink: 0;
+  gap: 1px;
+  opacity: 0.9;
+}
+.danger-skull {
+  display: grid;
+  place-items: center;
+  padding: 3px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.danger-skull:hover {
+  background: var(--surface-hover);
+  transform: scale(1.12);
+}
+.danger-label {
+  margin-left: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
