@@ -41,7 +41,10 @@ const output = (cmd, cmdArgs) => execFileSync(cmd, cmdArgs, { cwd: root, encodin
 function run(cmd, cmdArgs) {
   const env = { ...process.env }
   delete env.ELECTRON_RUN_AS_NODE // ver scripts/electron-vite.mjs
-  const result = spawnSync(cmd, cmdArgs, { cwd: root, stdio: 'inherit', env, shell: process.platform === 'win32' })
+  // En Windows, npm es un .cmd y necesita la consola; git y gh no, y sin ella
+  // los argumentos con espacios ("Versión 1.2.3") llegan intactos.
+  const shell = process.platform === 'win32' && cmd === 'npm'
+  const result = spawnSync(cmd, cmdArgs, { cwd: root, stdio: 'inherit', env, shell })
   if (result.status !== 0) fail(`Falló: ${cmd} ${cmdArgs.join(' ')}`)
 }
 
