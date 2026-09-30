@@ -11,7 +11,8 @@
     "build": "electron-vite build",
     "preview": "node scripts/electron-vite.mjs preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "dist": "electron-vite build && electron-builder --win"
+    "dist": "electron-vite build && electron-builder --win",
+    "release": "node scripts/release.mjs"
   },
   "build": {
     "appId": "com.bluefantasynovel.app",

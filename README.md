@@ -149,6 +149,24 @@ npm run dev        # abre la aplicación en modo desarrollo con recarga en calie
 | `npm run preview` | Ejecuta la versión compilada |
 | `npm run typecheck` | Comprueba los tipos de TypeScript |
 | `npm run dist` | Genera el instalador y la versión portable en `release/` |
+| `npm run release` | Publica una versión nueva en GitHub (ver abajo) |
+
+### Publicar una versión nueva
+
+Con todos los cambios ya en commits y [GitHub CLI](https://cli.github.com/)
+con la sesión iniciada (`gh auth login`):
+
+```bash
+npm run release              # 0.5.0 → 0.5.1 (correcciones)
+npm run release -- minor     # 0.5.0 → 0.6.0 (funciones nuevas)
+npm run release -- major     # 0.5.0 → 1.0.0
+npm run release -- --dry-run # muestra lo que haría, sin cambiar nada
+```
+
+El comando sube el número de versión, comprueba los tipos, genera los .exe,
+crea el commit y la etiqueta, los sube a GitHub y publica la Release con los
+instaladores adjuntos y la lista de cambios (los mensajes de los commits
+desde la versión anterior). Ver `scripts/release.mjs`.
 
 - **[docs/ARQUITECTURA.md](docs/ARQUITECTURA.md)**: cómo está organizado el código,
   el formato de los datos y recetas paso a paso para añadir funciones.
