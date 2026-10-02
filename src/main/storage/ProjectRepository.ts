@@ -6,6 +6,7 @@
  *   <biblioteca>/
  *     <projectId>/
  *       project.json          metadatos, capítulos (sin texto), fichas, estadísticas
+       project.schema-vN.json  copia de project.json anterior a convertirlo del esquema N
  *       chapters/
  *         <chapterId>.json    texto del capítulo (JSON de TipTap)
  *         .versions/
@@ -21,7 +22,7 @@
  * serializa por proyecto para que dos operaciones simultáneas (p. ej. el
  * autoguardado y editar un personaje) no se pisen.
  */
-import { promises as fs } from 'node:fs'
+import { constants as fsConstants, promises as fs } from 'node:fs'
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { countWords } from '@shared/text'
@@ -166,8 +167,11 @@ export class ProjectRepository {
 
   async getProject(projectId: Id): Promise<Project> {
     assertSafeId(projectId, 'projectId')
-    const { project, migrated } = migrateProject(await readJson(this.projectFile(projectId)))
+    const file = this.projectFile(projectId)
+    const raw = await readJson<{ schemaVersion?: number }>(file)
+    const { project, migrated } = migrateProject(raw)
     if (migrated) {
+      await keepPreMigrationCopy(file, raw.schemaVersion ?? 1)
       // Proyectos anteriores a las escenas: se calculan una vez a partir del texto.
       for (const chapter of project.chapters) {
         if (chapter.scenes.length === 0 && chapter.wordCount > 0) {
@@ -891,5 +895,20 @@ function toSummary(project: Project, sagaId: Id | null): ProjectSummary {
     coverImage: project.cover.front.image,
     sagaId,
     updatedAt: project.updatedAt
+  }
+}
+
+/**
+ * Antes de guardar un proyecto convertido a un esquema nuevo, deja una copia
+ * del archivo tal como estaba (`project.schema-v3.json`, por ejemplo). Si una
+ * migración tuviera un fallo, el original sigue ahí. Nunca sobrescribe una
+ * copia que ya exista.
+ */
+async function keepPreMigrationCopy(projectFile: string, fromVersion: number): Promise<void> {
+  const copy = path.join(path.dirname(projectFile), `project.schema-v${fromVersion}.json`)
+  try {
+    await fs.copyFile(projectFile, copy, fsConstants.COPYFILE_EXCL)
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error
   }
 }
