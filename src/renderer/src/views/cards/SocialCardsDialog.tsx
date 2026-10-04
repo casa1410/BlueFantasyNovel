@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react'
 import { BarChart3, BookImage, Download, Globe2, Map, Quote, User, type LucideIcon } from 'lucide-react'
 import { COVER_TEMPLATE_INFO, estimatedPages } from '@shared/cover'
 import { longestStreak } from '@shared/dates'
-import { ROLE_LABELS } from '@shared/labels'
+import { characterRoleLabel } from '@shared/labels'
 import { manuscriptChapters, manuscriptWordCount } from '@shared/manuscript'
 import { readingMinutes } from '@shared/text'
 import type { Id, Project } from '@shared/types'
@@ -337,7 +337,7 @@ const PAINTERS: Record<CardType, (p: PaintContext) => Promise<void>> = {
     const race = project.races.find((x) => x.id === c.raceId)?.name
     const lineage = project.lineages.find((x) => x.id === c.lineageId)?.name
     ctx.fillStyle = style.accent
-    const subtitle = [ROLE_LABELS[c.role], race, lineage].filter(Boolean).join(' · ').toLocaleUpperCase('es')
+    const subtitle = [characterRoleLabel(c), race, lineage].filter(Boolean).join(' · ').toLocaleUpperCase('es')
     // Reduce la letra hasta que la línea quepa en el ancho de la tarjeta.
     let size = Math.round(w * 0.034)
     do ctx.font = `600 ${size--}px ${SERIF}`

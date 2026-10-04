@@ -10,7 +10,7 @@
 import { promises as fs } from 'node:fs'
 import { nativeImage } from 'electron'
 import { compareEvents, formatWorldDate } from '@shared/calendar'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS, LORE_CATEGORY_LABELS, RELATION_LABELS, ROLE_LABELS } from '@shared/labels'
+import { CREATURE_TYPE_LABELS, DANGER_LABELS, LORE_CATEGORY_LABELS, RELATION_LABELS, characterRoleLabel } from '@shared/labels'
 import { manuscriptChapters } from '@shared/manuscript'
 import { escapeHtml } from '@shared/richText'
 import { LORE_CATEGORIES, type AssetFileName, type Id, type Project } from '@shared/types'
@@ -136,7 +136,7 @@ export function buildBibleHtml({ project, images }: BibleData): string {
             })
           return `<article class="entry round">${img(c.image, c.name)}<div>
             <h3>${e(c.name)}</h3>
-            <div class="meta">${[ROLE_LABELS[c.role], c.age && `${e(c.age)} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages), c.aliases.length ? `También: ${e(c.aliases.join(', '))}` : '']
+            <div class="meta">${[e(characterRoleLabel(c)), c.age && `${e(c.age)} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages), c.aliases.length ? `También: ${e(c.aliases.join(', '))}` : '']
               .filter(Boolean)
               .join(' · ')}</div>
             ${fields([

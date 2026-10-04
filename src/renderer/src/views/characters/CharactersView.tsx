@@ -7,7 +7,7 @@ import { EntityBrowser } from '@renderer/components/EntityBrowser'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { initials } from '@renderer/lib/covers'
 import { CharacterForm } from './CharacterForm'
-import { CHARACTER_COLORS, ROLE_LABELS } from './characterOptions'
+import { CHARACTER_COLORS, characterRoleLabel } from './characterOptions'
 
 interface CharactersViewProps {
   project: Project
@@ -24,12 +24,14 @@ export function CharactersView({ project, onProjectChange, onOpenChapter }: Char
       title="Personajes"
       deleteNoun="la ficha del personaje"
       importable
+      reorderable
       nameOf={(c) => c.name}
-      searchTextOf={(c) => `${ROLE_LABELS[c.role]} ${c.aliases.join(' ')}`}
+      searchTextOf={(c) => `${characterRoleLabel(c)} ${c.aliases.join(' ')}`}
       newEntity={(): EntityInput<'characters'> => ({
         name: 'Nuevo personaje',
         aliases: [],
         role: 'secundario',
+        roleCustom: '',
         age: '',
         appearance: '',
         personality: '',
@@ -47,7 +49,7 @@ export function CharactersView({ project, onProjectChange, onOpenChapter }: Char
           <EntityThumb projectId={project.id} image={c.image} color={c.color} fallback={initials(c.name)} />
           <span className="entity-item-text">
             <strong>{c.name || 'Sin nombre'}</strong>
-            <small>{[ROLE_LABELS[c.role], project.races.find((r) => r.id === c.raceId)?.name].filter(Boolean).join(' · ')}</small>
+            <small>{[characterRoleLabel(c), project.races.find((r) => r.id === c.raceId)?.name].filter(Boolean).join(' · ')}</small>
           </span>
         </>
       )}

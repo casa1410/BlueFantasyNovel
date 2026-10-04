@@ -79,6 +79,9 @@ export function registerIpcHandlers(repository: ProjectRepository, settings: Set
   handle(IPC.entitiesImport, (_e, projectId, sourceProjectId, collection, entityIds) =>
     repository.importEntities(projectId, sourceProjectId, collection, entityIds)
   )
+  handle(IPC.entitiesReorder, (_e, projectId, collection, orderedIds) =>
+    repository.reorderEntities(projectId, collection, orderedIds)
+  )
 
   // Imágenes
   handle(IPC.assetsPickImage, async (event, projectId) => (await pickImages(repository, projectId, windowOf(event), false))[0] ?? null)
@@ -88,6 +91,8 @@ export function registerIpcHandlers(repository: ProjectRepository, settings: Set
     assertSafeId(projectId, 'projectId')
     return repository.importAsset(projectId, String(filePath))
   })
+  handle(IPC.assetsSaveImage, (_e, projectId, dataUrl) => repository.saveImageData(projectId, String(dataUrl)))
+  handle(IPC.assetsDiscard, (_e, projectId, fileName) => repository.discardAsset(projectId, fileName))
 
   // Archivos sueltos
   handle(IPC.filesSavePng, async (event, dataUrl: string, suggestedName: string) => {

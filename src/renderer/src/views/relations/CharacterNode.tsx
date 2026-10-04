@@ -2,7 +2,7 @@ import { Handle, Position, type NodeProps, type Node } from '@xyflow/react'
 import type { Character, Id } from '@shared/types'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { initials } from '@renderer/lib/covers'
-import { ROLE_LABELS } from '../characters/characterOptions'
+import { characterRoleLabel } from '../characters/characterOptions'
 
 export type CharacterNodeData = {
   character: Character
@@ -23,7 +23,7 @@ export function CharacterNode({ data, selected }: NodeProps<CharacterFlowNode>) 
       <EntityThumb projectId={projectId} image={c.image} color={c.color} fallback={initials(c.name)} size={36} />
       <div className="character-node-text">
         <strong>{c.name || 'Sin nombre'}</strong>
-        <small>{lineage ? lineage.name : ROLE_LABELS[c.role]}</small>
+        <small>{lineage ? lineage.name : characterRoleLabel(c)}</small>
       </div>
       <Handle type="source" position={Position.Top} id="t" />
       <Handle type="source" position={Position.Right} id="r" />

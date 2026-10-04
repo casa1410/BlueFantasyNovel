@@ -8,7 +8,7 @@ import type { Id, MentionableCollection, Project } from '@shared/types'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { initials } from '@renderer/lib/covers'
 import { CREATURE_TYPE_LABELS, DANGER_LABELS } from '../../bestiary/bestiaryOptions'
-import { ROLE_LABELS } from '../../characters/characterOptions'
+import { characterRoleLabel } from '../../characters/characterOptions'
 import { LORE_CATEGORY_INFO } from '../../lore/loreOptions'
 
 export interface HoveredMention {
@@ -58,7 +58,7 @@ function describe(project: Project, { kind, id }: HoveredMention) {
     if (!c) return null
     return {
       name: c.name,
-      subtitle: [ROLE_LABELS[c.role], c.age && `${c.age} años`].filter(Boolean).join(' · '),
+      subtitle: [characterRoleLabel(c), c.age && `${c.age} años`].filter(Boolean).join(' · '),
       thumb: <EntityThumb projectId={project.id} image={c.image} color={c.color} fallback={initials(c.name)} size={40} />,
       lines: lines([
         ['Apariencia', c.appearance],

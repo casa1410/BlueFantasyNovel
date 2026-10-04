@@ -7,7 +7,7 @@
  * `src/main/storage/migrations.ts`.
  */
 
-export const CURRENT_SCHEMA_VERSION = 4
+export const CURRENT_SCHEMA_VERSION = 5
 
 /** Identificador único (UUID v4). */
 export type Id = string
@@ -75,6 +75,7 @@ export const CHARACTER_ROLES = [
   'protagonista',
   'antagonista',
   'secundario',
+  'terciario',
   'mentor',
   'aliado',
   'otro'
@@ -88,6 +89,8 @@ export interface Character {
   /** Otros nombres con los que aparece en el texto ("Aelis", "la cartógrafa"). */
   aliases: string[]
   role: CharacterRole
+  /** Rol escrito a mano. Se muestra en lugar de "Otro" cuando `role` es 'otro'. */
+  roleCustom: string
   /** Texto libre: "34", "unos 300 años", "desconocida"... */
   age: string
   appearance: string

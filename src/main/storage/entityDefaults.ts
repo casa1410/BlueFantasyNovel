@@ -15,6 +15,7 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     name: '',
     aliases: [],
     role: 'otro',
+    roleCustom: '',
     age: '',
     appearance: '',
     personality: '',

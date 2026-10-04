@@ -5,6 +5,7 @@
 import { Trash2 } from 'lucide-react'
 import { CHARACTER_ROLES, type ChapterMeta, type Character, type Id, type Lineage, type Project, type Race } from '@shared/types'
 import { AppearancesPanel } from '@renderer/components/AppearancesPanel'
+import { ColorPicker } from '@renderer/components/ColorPicker'
 import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
 import { SaveBadge } from '@renderer/components/SaveBadge'
@@ -67,10 +68,19 @@ export function CharacterForm({ projectId, character, chapters, races, lineages,
             >
               {CHARACTER_ROLES.map((role) => (
                 <option key={role} value={role}>
-                  {ROLE_LABELS[role]}
+                  {role === 'otro' ? 'Otro (escribir…)' : ROLE_LABELS[role]}
                 </option>
               ))}
             </select>
+            {draft.role === 'otro' && (
+              <input
+                className="input input-inline"
+                value={draft.roleCustom}
+                onChange={(e) => update('roleCustom', e.target.value)}
+                placeholder="Escribe el rol (p. ej. Narrador)"
+                aria-label="Rol personalizado"
+              />
+            )}
             <input
               className="input input-inline"
               value={draft.age}
@@ -113,6 +123,11 @@ export function CharacterForm({ projectId, character, chapters, races, lineages,
                   aria-label={color}
                 />
               ))}
+              <ColorPicker
+                value={draft.color}
+                onChange={(color) => update('color', color)}
+                active={!CHARACTER_COLORS.includes(draft.color)}
+              />
             </div>
           </div>
           <ListInput

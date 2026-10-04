@@ -1,0 +1,73 @@
+.color-picker {
+  position: relative;
+}
+/* Sin color propio, el botón muestra el arcoíris: "cualquier color". */
+.color-picker-trigger {
+  background: conic-gradient(#ff5b5b, #ffd35b, #5bff8a, #5bd6ff, #8a5bff, #ff5bd6, #ff5b5b);
+}
+
+.color-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 232px;
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.color-panel-map,
+.color-panel-hue {
+  position: relative;
+  border-radius: var(--radius-sm);
+  cursor: crosshair;
+  touch-action: none;
+}
+.color-panel-map {
+  height: 150px;
+}
+/* Blanco a la izquierda, negro abajo, sobre el tono puro. */
+.color-panel-map::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent);
+}
+.color-panel-hue {
+  height: 14px;
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.color-panel-thumb {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45), var(--shadow-soft);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.color-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.color-panel-preview {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+.color-panel-hex {
+  flex: 1;
+  padding: 6px 10px;
+  font-family: var(--font-mono);
+  text-transform: lowercase;
+}

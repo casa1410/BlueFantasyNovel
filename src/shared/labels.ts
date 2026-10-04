@@ -2,15 +2,22 @@
  * Nombres visibles (en español) de los valores guardados en los datos.
  * Los usan la interfaz y las exportaciones (Biblia del Mundo).
  */
-import type { CharacterRole, CreatureType, DangerLevel, LoreCategory, RelationshipKind } from './types'
+import type { Character, CharacterRole, CreatureType, DangerLevel, LoreCategory, RelationshipKind } from './types'
 
 export const ROLE_LABELS: Record<CharacterRole, string> = {
   protagonista: 'Protagonista',
   antagonista: 'Antagonista',
   secundario: 'Secundario',
+  terciario: 'Terciario',
   mentor: 'Mentor',
   aliado: 'Aliado',
   otro: 'Otro'
+}
+
+/** Rol visible de un personaje: el escrito a mano si lo tiene, o el de la lista. */
+export function characterRoleLabel(c: Pick<Character, 'role' | 'roleCustom'>): string {
+  const custom = c.role === 'otro' ? (c.roleCustom ?? '').trim() : ''
+  return custom || ROLE_LABELS[c.role] || ROLE_LABELS.otro
 }
 
 export const LORE_CATEGORY_LABELS: Record<LoreCategory, { label: string; plural: string }> = {

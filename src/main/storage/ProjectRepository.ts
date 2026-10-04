@@ -536,6 +536,20 @@ export class ProjectRepository {
     return project
   }
 
+  /** Cambia el orden de una colección. `orderedIds` debe contener exactamente sus ids. */
+  reorderEntities(projectId: Id, collection: EntityCollection, orderedIds: Id[]): Promise<Project> {
+    assertCollection(collection)
+    return this.mutate(projectId, (p) => {
+      const list = entitiesOf(p, collection)
+      const byId = new Map(list.map((e) => [e.id, e]))
+      const sameSet =
+        Array.isArray(orderedIds) && orderedIds.length === byId.size && new Set(orderedIds).size === byId.size && orderedIds.every((id) => byId.has(id))
+      if (!sameSet) throw new Error('El nuevo orden no coincide con las fichas existentes')
+      ;(p[collection] as unknown[]) = orderedIds.map((id) => byId.get(id)!)
+      return p
+    })
+  }
+
   /**
    * Copia fichas de otra historia (para sagas que comparten mundo). Se crean
    * con ids nuevos y con copia de sus imágenes; las historias quedan
@@ -750,6 +764,30 @@ export class ProjectRepository {
     await fs.mkdir(this.assetsDir(projectId), { recursive: true })
     await fs.copyFile(sourcePath, path.join(this.assetsDir(projectId), fileName))
     return fileName
+  }
+
+  /** Guarda una imagen PNG recibida como data URL (p. ej. un retrato recortado). */
+  async saveImageData(projectId: Id, dataUrl: string): Promise<AssetFileName> {
+    assertSafeId(projectId, 'projectId')
+    const match = /^data:image\/png;base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl)
+    if (!match) throw new Error('Imagen no válida')
+    const fileName = `${randomUUID()}.png`
+    await fs.mkdir(this.assetsDir(projectId), { recursive: true })
+    await fs.writeFile(path.join(this.assetsDir(projectId), fileName), Buffer.from(match[1], 'base64'))
+    return fileName
+  }
+
+  /**
+   * Borra una imagen que se añadió pero no se llegó a usar (p. ej. el
+   * original de un retrato recortado). Si alguna ficha la usa, no hace nada.
+   */
+  discardAsset(projectId: Id, fileName: AssetFileName): Promise<void> {
+    assertSafeId(projectId, 'projectId')
+    if (!isValidAssetFileName(fileName)) throw new Error(`Nombre de imagen no válido: ${fileName}`)
+    return this.withLock(projectId, async () => {
+      const project = await this.getProject(projectId)
+      if (unreferencedAssets(project, new Set([fileName])).length > 0) await this.deleteAsset(projectId, fileName)
+    })
   }
 
   /** Ruta absoluta de un asset, validando que no se salga de su carpeta. */

@@ -44,12 +44,15 @@ const api: BlueFantasyApi = {
       invoke(IPC.entitiesUpdate, projectId, collection, entityId, input),
     delete: (projectId, collection, entityId) => invoke(IPC.entitiesDelete, projectId, collection, entityId),
     import: (projectId, sourceProjectId, collection, entityIds) =>
-      invoke(IPC.entitiesImport, projectId, sourceProjectId, collection, entityIds)
+      invoke(IPC.entitiesImport, projectId, sourceProjectId, collection, entityIds),
+    reorder: (projectId, collection, orderedIds) => invoke(IPC.entitiesReorder, projectId, collection, orderedIds)
   },
   assets: {
     pickImage: (projectId) => invoke(IPC.assetsPickImage, projectId),
     pickImages: (projectId) => invoke(IPC.assetsPickImages, projectId),
-    importFile: (projectId, filePath) => invoke(IPC.assetsImportFile, projectId, filePath)
+    importFile: (projectId, filePath) => invoke(IPC.assetsImportFile, projectId, filePath),
+    saveImage: (projectId, dataUrl) => invoke(IPC.assetsSaveImage, projectId, dataUrl),
+    discard: (projectId, fileName) => invoke(IPC.assetsDiscard, projectId, fileName)
   },
   files: {
     pathOf: (file) => webUtils.getPathForFile(file),

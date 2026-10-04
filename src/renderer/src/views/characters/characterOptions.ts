@@ -1,5 +1,5 @@
-/** Texto visible de cada rol (definido en shared/labels.ts). */
-export { ROLE_LABELS } from '@shared/labels'
+/** Texto visible de cada rol y del rol de un personaje (definidos en shared/labels.ts). */
+export { ROLE_LABELS, characterRoleLabel } from '@shared/labels'
 
 /** Paleta para identificar personajes. Se asignan por turnos al crearlos. */
 export const CHARACTER_COLORS = [

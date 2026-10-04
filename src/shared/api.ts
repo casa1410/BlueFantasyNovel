@@ -65,10 +65,13 @@ export const IPC = {
   entitiesUpdate: 'entities:update',
   entitiesDelete: 'entities:delete',
   entitiesImport: 'entities:import',
+  entitiesReorder: 'entities:reorder',
 
   assetsPickImage: 'assets:pick-image',
   assetsPickImages: 'assets:pick-images',
   assetsImportFile: 'assets:import-file',
+  assetsSaveImage: 'assets:save-image',
+  assetsDiscard: 'assets:discard',
 
   filesSavePng: 'files:save-png',
 
@@ -165,6 +168,8 @@ export interface BlueFantasyApi {
       collection: 'characters' | 'lore' | 'creatures' | 'races' | 'glossary' | 'lineages',
       entityIds: Id[]
     ): Promise<Project>
+    /** Cambia el orden de una colección (arrastrar en la lista). `orderedIds` debe incluirlas todas. */
+    reorder(projectId: Id, collection: EntityCollection, orderedIds: Id[]): Promise<Project>
   }
   assets: {
     /**
@@ -177,6 +182,10 @@ export interface BlueFantasyApi {
     pickImages(projectId: Id): Promise<AssetFileName[]>
     /** Copia al proyecto una imagen soltada con arrastrar y soltar (ver `files.pathOf`). */
     importFile(projectId: Id, filePath: string): Promise<AssetFileName>
+    /** Guarda en el proyecto una imagen PNG (data URL), p. ej. un retrato recortado. */
+    saveImage(projectId: Id, dataUrl: string): Promise<AssetFileName>
+    /** Borra una imagen recién añadida que al final no se usa (no hace nada si alguna ficha la usa). */
+    discard(projectId: Id, fileName: AssetFileName): Promise<void>
   }
   files: {
     /** Ruta en disco de un archivo soltado sobre la ventana (arrastrar y soltar). */

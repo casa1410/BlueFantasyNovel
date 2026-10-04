@@ -62,7 +62,12 @@ const MIGRATIONS: Record<number, (project: RawProject) => RawProject> = {
     plotlines: [],
     comments: [],
     cover: defaultCover(String(p.title ?? ''))
-  })
+  }),
+  /**
+   * v4 -> v5: rol "terciario" y rol escrito a mano (`roleCustom`) en los
+   * personajes. El campo nuevo lo rellena `withDefaults` al leer.
+   */
+  4: (p) => ({ ...p, schemaVersion: 5 })
 }
 
 export function migrateProject(raw: RawProject): { project: Project; migrated: boolean } {

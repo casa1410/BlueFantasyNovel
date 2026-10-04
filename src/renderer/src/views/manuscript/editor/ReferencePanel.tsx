@@ -33,7 +33,7 @@ import { api } from '@renderer/lib/api'
 import { initials } from '@renderer/lib/covers'
 import { relativeTime } from '@renderer/lib/format'
 import { CREATURE_TYPE_LABELS, DANGER_LABELS } from '../../bestiary/bestiaryOptions'
-import { ROLE_LABELS } from '../../characters/characterOptions'
+import { characterRoleLabel } from '../../characters/characterOptions'
 import { LORE_CATEGORY_INFO } from '../../lore/loreOptions'
 
 /** Forma común con la que el panel pinta cualquier tipo de ficha. */
@@ -65,7 +65,7 @@ const TABS: TabDefinition[] = [
       project.characters.map((c) => ({
         id: c.id,
         name: c.name,
-        subtitle: [ROLE_LABELS[c.role], nameOf(project.races, c.raceId), nameOf(project.lineages, c.lineageId)].filter(Boolean).join(' · '),
+        subtitle: [characterRoleLabel(c), nameOf(project.races, c.raceId), nameOf(project.lineages, c.lineageId)].filter(Boolean).join(' · '),
         thumb: <EntityThumb projectId={project.id} image={c.image} color={c.color} fallback={initials(c.name)} />,
         details: [
           { label: 'Edad', value: c.age },

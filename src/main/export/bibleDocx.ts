@@ -5,7 +5,7 @@
  */
 import { AlignmentType, Document, HeadingLevel, ImageRun, Packer, Paragraph, TextRun } from 'docx'
 import { compareEvents, formatWorldDate } from '@shared/calendar'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS, LORE_CATEGORY_LABELS, RELATION_LABELS, ROLE_LABELS } from '@shared/labels'
+import { CREATURE_TYPE_LABELS, DANGER_LABELS, LORE_CATEGORY_LABELS, RELATION_LABELS, characterRoleLabel } from '@shared/labels'
 import { manuscriptChapters } from '@shared/manuscript'
 import { LORE_CATEGORIES, type AssetFileName, type Id } from '@shared/types'
 import type { BibleData } from './bible'
@@ -53,7 +53,7 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
     for (const c of project.characters) {
       entry(c.name)
       image(c.image, 160)
-      meta([ROLE_LABELS[c.role], c.age && `${c.age} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages)].filter(Boolean).join(' · '))
+      meta([characterRoleLabel(c), c.age && `${c.age} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages)].filter(Boolean).join(' · '))
       field('También conocido como', c.aliases.join(', '))
       field('Apariencia', c.appearance)
       field('Personalidad', c.personality)

@@ -3,10 +3,11 @@
  * la izquierda, ficha editable a la derecha. Lo usan Personajes, Lore y
  * Bestiario; cada sección solo aporta cómo pintar un elemento y su formulario.
  *
- * Se encarga de: selección, crear, confirmar borrado y estado vacío.
+ * Se encarga de: selección, crear, confirmar borrado, estado vacío y, si se
+ * pide (`reorderable`), ordenar a mano arrastrando los elementos de la lista.
  */
 import { useMemo, useState, type ReactNode } from 'react'
-import { Download, Plus, Search, type LucideIcon } from 'lucide-react'
+import { Download, GripVertical, Plus, Search, type LucideIcon } from 'lucide-react'
 import type { EntityCollection, EntityInput, EntityMap, Id, Project } from '@shared/types'
 import { api, errorMessage } from '@renderer/lib/api'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -40,6 +41,11 @@ interface EntityBrowserProps<C extends EntityCollection> {
   deleteNoun: string
   /** Muestra el botón "Importar de otra historia" (solo fichas mencionables). */
   importable?: boolean
+  /**
+   * La lista sigue el orden guardado (no el alfabético) y se puede reordenar
+   * arrastrando. Mientras se busca no se arrastra: la lista está filtrada.
+   */
+  reorderable?: boolean
 }
 
 export function EntityBrowser<C extends EntityCollection>(props: EntityBrowserProps<C>) {
@@ -49,23 +55,49 @@ export function EntityBrowser<C extends EntityCollection>(props: EntityBrowserPr
   const [query, setQuery] = useState('')
   const [pendingDelete, setPendingDelete] = useState<EntityMap[C] | null>(null)
   const [importing, setImporting] = useState(false)
+  const [dragId, setDragId] = useState<Id | null>(null)
+  const [dropIndex, setDropIndex] = useState<number | null>(null)
   const toast = useToast()
+  const canDrag = Boolean(props.reorderable) && !props.groups && !query.trim()
 
   const selected = items.find((item) => item.id === selectedId) ?? null
 
   const sections = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const compare = props.compare ?? ((a, b) => nameOf(a).localeCompare(nameOf(b), 'es'))
-    const filtered = items
-      .filter((item) => !q || `${nameOf(item)} ${props.searchTextOf?.(item) ?? ''}`.toLowerCase().includes(q))
-      .sort(compare)
+    const compare = props.compare ?? (props.reorderable ? undefined : (a: EntityMap[C], b: EntityMap[C]) => nameOf(a).localeCompare(nameOf(b), 'es'))
+    const filtered = items.filter((item) => !q || `${nameOf(item)} ${props.searchTextOf?.(item) ?? ''}`.toLowerCase().includes(q))
+    if (compare) filtered.sort(compare)
 
     if (!props.groups) return [{ key: '', label: '', items: filtered }]
     const { order, label, keyOf } = props.groups
     return order
       .map((key) => ({ key, label: label(key), items: filtered.filter((item) => keyOf(item) === key) }))
       .filter((section) => section.items.length > 0)
-  }, [items, query, nameOf, props.compare, props.searchTextOf, props.groups])
+  }, [items, query, nameOf, props.compare, props.searchTextOf, props.groups, props.reorderable])
+
+  const resetDrag = () => {
+    setDragId(null)
+    setDropIndex(null)
+  }
+
+  /** Suelta el elemento arrastrado en `dropIndex` y guarda el nuevo orden. */
+  const drop = async () => {
+    if (dragId === null || dropIndex === null) return
+    const from = items.findIndex((item) => item.id === dragId)
+    if (from < 0) return
+    const reordered = [...items]
+    const [moved] = reordered.splice(from, 1)
+    reordered.splice(dropIndex > from ? dropIndex - 1 : dropIndex, 0, moved)
+    if (reordered.every((item, i) => item === items[i])) return
+    // Se muestra ya el nuevo orden; si falla al guardar, se vuelve al anterior.
+    onProjectChange({ ...project, [collection]: reordered })
+    try {
+      onProjectChange(await api.entities.reorder(project.id, collection, reordered.map((item) => item.id)))
+    } catch (error) {
+      onProjectChange(project)
+      toast.error(`No se pudo cambiar el orden: ${errorMessage(error)}`)
+    }
+  }
 
   const create = async () => {
     try {
@@ -113,12 +145,40 @@ export function EntityBrowser<C extends EntityCollection>(props: EntityBrowserPr
                   {section.label} <span>{section.items.length}</span>
                 </div>
               )}
-              {section.items.map((item) => (
+              {section.items.map((item, index) => (
                 <button
                   key={item.id}
-                  className={`entity-item ${item.id === selectedId ? 'is-active' : ''}`}
+                  className={[
+                    'entity-item',
+                    item.id === selectedId && 'is-active',
+                    canDrag && 'is-draggable',
+                    item.id === dragId && 'is-dragging',
+                    dropIndex === index && 'drop-before',
+                    dropIndex === section.items.length && index === section.items.length - 1 && 'drop-after'
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                   onClick={() => setSelectedId(item.id)}
+                  draggable={canDrag}
+                  onDragStart={(e) => {
+                    setDragId(item.id)
+                    e.dataTransfer.effectAllowed = 'move'
+                  }}
+                  onDragOver={(e) => {
+                    if (dragId === null) return
+                    e.preventDefault()
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    setDropIndex(e.clientY > rect.top + rect.height / 2 ? index + 1 : index)
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    void drop()
+                    resetDrag()
+                  }}
+                  onDragEnd={resetDrag}
+                  title={canDrag ? 'Arrastra para cambiar el orden' : undefined}
                 >
+                  {canDrag && <GripVertical size={14} className="entity-grip" />}
                   {props.renderListItem(item)}
                 </button>
               ))}
