@@ -7,6 +7,7 @@ import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
 import { IPC } from '@shared/api'
 import { registerAssetProtocol, registerAssetSchemePrivileges } from './assets'
 import { BackupService } from './backup'
+import { attachContextMenu } from './contextMenu'
 import { registerIpcHandlers } from './ipc'
 import { SettingsStore } from './settings'
 import { ProjectRepository } from './storage/ProjectRepository'
@@ -47,6 +48,7 @@ function createMainWindow(): BrowserWindow {
   window.webContents.session.setSpellCheckerLanguages(['es-ES'])
   window.once('ready-to-show', () => window.show())
   guardCloseUntilSaved(window)
+  attachContextMenu(window)
 
   // Los enlaces externos se abren en el navegador, nunca dentro de la app.
   window.webContents.setWindowOpenHandler(({ url }) => {
