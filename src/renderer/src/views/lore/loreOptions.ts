@@ -1,6 +1,6 @@
 import { BookMarked, Church, Drama, Gem, Landmark, MapPin, Shield, Sparkles, type LucideIcon } from 'lucide-react'
-import { LORE_CATEGORY_LABELS } from '@shared/labels'
-import type { LoreCategory } from '@shared/types'
+import { LORE_CATEGORY_LABELS, loreCategoryLabel } from '@shared/labels'
+import type { LoreCategory, LoreEntry } from '@shared/types'
 
 const VISUALS: Record<LoreCategory, { icon: LucideIcon; color: string }> = {
   lugar: { icon: MapPin, color: '#3fb6d9' },
@@ -17,3 +17,9 @@ const VISUALS: Record<LoreCategory, { icon: LucideIcon; color: string }> = {
 export const LORE_CATEGORY_INFO = Object.fromEntries(
   (Object.keys(VISUALS) as LoreCategory[]).map((key) => [key, { ...LORE_CATEGORY_LABELS[key], ...VISUALS[key] }])
 ) as Record<LoreCategory, { label: string; plural: string; icon: LucideIcon; color: string }>
+
+/** Icono, color y nombre visible de la categoría de una entrada (incluida la escrita a mano). */
+export function loreCategoryInfo(entry: Pick<LoreEntry, 'category' | 'categoryCustom'>) {
+  const info = LORE_CATEGORY_INFO[entry.category] ?? LORE_CATEGORY_INFO.otro
+  return { ...info, label: loreCategoryLabel(entry) }
+}

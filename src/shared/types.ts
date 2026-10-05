@@ -136,6 +136,8 @@ export interface LoreEntry {
   /** Otros nombres con los que aparece en el texto. */
   aliases: string[]
   category: LoreCategory
+  /** Categoría escrita a mano. Se usa en lugar de "Otro" cuando `category` es 'otro'. */
+  categoryCustom: string
   /** Una línea que resume la entrada (se ve en listas y en el panel de referencia). */
   summary: string
   body: string
@@ -173,6 +175,8 @@ export interface Creature {
   /** Otros nombres con los que aparece en el texto. */
   aliases: string[]
   type: CreatureType
+  /** Tipo escrito a mano. Se usa en lugar de "Otro" cuando `type` es 'otro'. */
+  typeCustom: string
   danger: DangerLevel
   habitat: string
   size: string
@@ -181,8 +185,10 @@ export interface Creature {
   abilities: string
   weaknesses: string
   notes: string
-  /** Ilustración: nombre de archivo dentro de `assets/` ('' = sin imagen). */
+  /** Ilustración (recortada, para la miniatura): nombre de archivo dentro de `assets/` ('' = sin imagen). */
   image: AssetFileName
+  /** La ilustración original sin recortar, la que se ve al abrirla ('' = la misma que `image`). */
+  fullImage: AssetFileName
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
 }
@@ -304,11 +310,40 @@ export interface Relationship {
   /** Personaje de destino. */
   targetId: Id
   kind: RelationshipKind
-  /** Texto libre opcional que se muestra sobre la línea ("prometidos en secreto"). */
+  /**
+   * Texto libre que se muestra sobre la línea ("prometidos en secreto"). Con
+   * `kind` 'otro' es el nombre del tipo de relación ("deuda de sangre").
+   */
   label: string
+  /** Color de la línea en hex ('' = el color de su tipo). */
+  color: string
   notes: string
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
+}
+
+/**
+ * Grupo del mapa de relaciones ("Amigos de la infancia", "La Orden"…). Se
+ * dibuja como un nodo con una línea a cada miembro, en lugar de una línea
+ * entre cada par de personajes.
+ */
+export interface RelationGroup {
+  id: Id
+  name: string
+  /** Color del nodo y de sus líneas (hex). */
+  color: string
+  /** Personajes del grupo. */
+  memberIds: Id[]
+  notes: string
+  createdAt: IsoDateTime
+  updatedAt: IsoDateTime
+}
+
+/** Todo lo que se ve en el mapa de relaciones: se guarda y se deshace de una vez. */
+export interface RelationMapState {
+  relationships: Relationship[]
+  relationGroups: RelationGroup[]
+  relationLayout: Record<Id, Point>
 }
 
 /** Posición de un nodo en un diagrama. */
@@ -421,6 +456,7 @@ export interface EntityMap {
   lore: LoreEntry
   creatures: Creature
   relationships: Relationship
+  relationGroups: RelationGroup
   events: TimelineEvent
   maps: WorldMap
   boards: Moodboard
@@ -437,6 +473,7 @@ export const ENTITY_COLLECTIONS: EntityCollection[] = [
   'lore',
   'creatures',
   'relationships',
+  'relationGroups',
   'events',
   'maps',
   'boards',
@@ -454,7 +491,7 @@ export type MentionableCollection = 'characters' | 'lore' | 'creatures' | 'races
  * Colecciones del "mundo": en una saga, las comparten todas sus historias
  * (un cambio en un libro se aplica a todos).
  */
-export const WORLD_COLLECTIONS = ['characters', 'lore', 'creatures', 'races', 'glossary', 'lineages', 'relationships'] as const
+export const WORLD_COLLECTIONS = ['characters', 'lore', 'creatures', 'races', 'glossary', 'lineages', 'relationships', 'relationGroups'] as const
 export type WorldCollection = (typeof WORLD_COLLECTIONS)[number]
 
 /** Campos que gestiona el sistema y no se pueden editar. */
@@ -485,11 +522,12 @@ export interface Project {
   lore: LoreEntry[]
   creatures: Creature[]
   relationships: Relationship[]
+  relationGroups: RelationGroup[]
   events: TimelineEvent[]
   maps: WorldMap[]
   boards: Moodboard[]
   calendar: WorldCalendar
-  /** Posición de cada personaje (por id) en el mapa de relaciones. */
+  /** Posición de cada personaje y grupo (por id) en el mapa de relaciones. */
   relationLayout: Record<Id, Point>
   /** Palabras nuevas escritas cada día. Solo suma, nunca resta. */
   dailyWords: Record<DayKey, number>

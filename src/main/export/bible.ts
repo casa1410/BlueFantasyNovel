@@ -10,10 +10,20 @@
 import { promises as fs } from 'node:fs'
 import { nativeImage } from 'electron'
 import { compareEvents, formatWorldDate } from '@shared/calendar'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS, LORE_CATEGORY_LABELS, RELATION_LABELS, characterRoleLabel } from '@shared/labels'
+import {
+  DANGER_LABELS,
+  LORE_CATEGORY_LABELS,
+  RELATION_LABELS,
+  characterRoleLabel,
+  creatureTypeLabel,
+  customGroupKey,
+  groupWithCustom,
+  loreCategoryLabel,
+  relationLabel
+} from '@shared/labels'
 import { manuscriptChapters } from '@shared/manuscript'
 import { escapeHtml } from '@shared/richText'
-import { LORE_CATEGORIES, type AssetFileName, type Id, type Project } from '@shared/types'
+import { LORE_CATEGORIES, type AssetFileName, type Id, type LoreEntry, type Project } from '@shared/types'
 import type { ProjectRepository } from '../storage/ProjectRepository'
 import { READING_STYLES } from './html'
 
@@ -129,11 +139,12 @@ export function buildBibleHtml({ project, images }: BibleData): string {
             .filter((r) => r.sourceId === c.id || r.targetId === c.id)
             .map((r) => {
               const other = nameOf(r.sourceId === c.id ? r.targetId : r.sourceId, project.characters)
-              const info = RELATION_LABELS[r.kind]
-              const label = r.label || info.label
+              const info = RELATION_LABELS[r.kind] ?? RELATION_LABELS.otro
+              const label = relationLabel(r)
               if (!info.directed) return `${label}: ${other}`
               return r.sourceId === c.id ? `${label} ${other}` : `${other} → ${label.toLowerCase()} ${c.name}`
             })
+            .concat(groupLines(project, c.id))
           return `<article class="entry round">${img(c.image, c.name)}<div>
             <h3>${e(c.name)}</h3>
             <div class="meta">${[e(characterRoleLabel(c)), c.age && `${e(c.age)} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages), c.aliases.length ? `También: ${e(c.aliases.join(', '))}` : '']
@@ -200,10 +211,8 @@ export function buildBibleHtml({ project, images }: BibleData): string {
     parts.push({
       id: 'lore',
       title: 'Lore',
-      html: LORE_CATEGORIES.map((category) => {
-        const entries = project.lore.filter((l) => l.category === category)
-        if (!entries.length) return ''
-        return `<h3>${e(LORE_CATEGORY_LABELS[category].plural)}</h3>${entries
+      html: loreGroups(project.lore).map(({ label, items: entries }) => {
+        return `<h3>${e(label)}</h3>${entries
           .map(
             (l) => `<article class="entry">${img(l.image, l.title)}<div><h3>${e(l.title)}</h3>
             ${l.summary ? `<div class="meta">${e(l.summary)}</div>` : ''}
@@ -237,7 +246,7 @@ export function buildBibleHtml({ project, images }: BibleData): string {
       html: project.creatures
         .map(
           (c) => `<article class="entry">${img(c.image, c.name)}<div><h3>${e(c.name)}</h3>
-          <div class="meta">${e(CREATURE_TYPE_LABELS[c.type])} · Peligrosidad: ${e(DANGER_LABELS[c.danger])} (${c.danger}/5)</div>
+          <div class="meta">${e(creatureTypeLabel(c))} · Peligrosidad: ${e(DANGER_LABELS[c.danger])} (${c.danger}/5)</div>
           ${fields([
             ['Hábitat', c.habitat],
             ['Tamaño', c.size],
@@ -322,4 +331,24 @@ export function buildBibleHtml({ project, images }: BibleData): string {
   ${parts.map((p) => `<h2 class="part" id="${p.id}">${e(p.title)}</h2>${p.html}`).join('\n')}
   ${parts.length === 0 ? '<p>Esta historia todavía no tiene fichas de worldbuilding.</p>' : ''}
 </main></body></html>`
+}
+
+/** Lore por categorías (las escritas a mano, cada una con su propio apartado). */
+export function loreGroups(lore: LoreEntry[]) {
+  return groupWithCustom(
+    lore,
+    LORE_CATEGORIES,
+    (l) => customGroupKey(l.category, l.categoryCustom),
+    (key, sample) => (key.startsWith('otro:') ? loreCategoryLabel(sample) : (LORE_CATEGORY_LABELS[sample.category] ?? LORE_CATEGORY_LABELS.otro).plural)
+  )
+}
+
+/** "Grupo «Los amigos»: Ana, Bruno" por cada grupo del mapa de relaciones al que pertenece el personaje. */
+export function groupLines(project: Project, characterId: Id): string[] {
+  return project.relationGroups
+    .filter((g) => g.memberIds.includes(characterId))
+    .map((g) => {
+      const others = g.memberIds.filter((id) => id !== characterId).map((id) => project.characters.find((c) => c.id === id)?.name ?? '¿?')
+      return `Grupo «${g.name || 'Sin nombre'}»${others.length ? `: ${others.join(', ')}` : ''}`
+    })
 }

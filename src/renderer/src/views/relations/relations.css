@@ -79,6 +79,22 @@
   cursor: default;
 }
 
+.relations-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+.relations-actions .icon-btn,
+.relations-actions .btn {
+  background: var(--surface);
+}
+.relations-actions .icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 /* Tarjeta de personaje dentro del diagrama */
 .character-node {
   display: flex;
@@ -182,4 +198,125 @@
   border: 3px solid;
   border-radius: 3px;
   background: transparent;
+}
+
+.relation-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* Nodo de grupo */
+.group-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border: 2px solid;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+  font-family: var(--font-ui);
+}
+.group-node.is-selected {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.relations-actions .btn.is-on {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+/* Recuadro de selección por área */
+.relations .react-flow__selection,
+.relations .react-flow__nodesselection-rect {
+  border: 1px dashed var(--accent);
+  background: var(--accent-soft);
+}
+.group-node-icon {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+}
+.group-node-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.group-node-text strong {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.group-node-text small {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+.group-node .react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ventana y panel de grupo */
+.group-dialog-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+}
+.group-colors {
+  flex-wrap: wrap;
+  margin-left: 0;
+  padding-top: 6px;
+}
+.member-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.relation-panel .member-picker {
+  grid-template-columns: 1fr;
+}
+.member-option,
+.group-dialog-kind {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  cursor: pointer;
+}
+.member-option:hover,
+.group-dialog-kind:hover {
+  background: var(--surface-hover);
+}
+.member-option.is-on {
+  background: var(--accent-soft);
+}
+.member-dot,
+.group-dialog-swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.group-dialog-swatch {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+.group-dialog-kinds {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }

@@ -82,6 +82,7 @@ export function registerIpcHandlers(repository: ProjectRepository, settings: Set
   handle(IPC.entitiesReorder, (_e, projectId, collection, orderedIds) =>
     repository.reorderEntities(projectId, collection, orderedIds)
   )
+  handle(IPC.relationsApply, (_e, projectId, state) => repository.applyRelationMap(projectId, state))
 
   // Imágenes
   handle(IPC.assetsPickImage, async (event, projectId) => (await pickImages(repository, projectId, windowOf(event), false))[0] ?? null)

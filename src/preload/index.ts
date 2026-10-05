@@ -47,6 +47,9 @@ const api: BlueFantasyApi = {
       invoke(IPC.entitiesImport, projectId, sourceProjectId, collection, entityIds),
     reorder: (projectId, collection, orderedIds) => invoke(IPC.entitiesReorder, projectId, collection, orderedIds)
   },
+  relations: {
+    apply: (projectId, state) => invoke(IPC.relationsApply, projectId, state)
+  },
   assets: {
     pickImage: (projectId) => invoke(IPC.assetsPickImage, projectId),
     pickImages: (projectId) => invoke(IPC.assetsPickImages, projectId),

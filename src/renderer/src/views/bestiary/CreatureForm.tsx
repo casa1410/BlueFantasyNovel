@@ -40,6 +40,8 @@ export function CreatureForm({ projectId, creature, chapters, onProjectChange, o
           projectId={projectId}
           image={draft.image}
           onChange={setImage}
+          fullImage={draft.fullImage}
+          onFullImageChange={(file) => update('fullImage', file)}
           variant="square"
           fallback={<PawPrint size={34} />}
         />
@@ -61,10 +63,19 @@ export function CreatureForm({ projectId, creature, chapters, onProjectChange, o
             >
               {CREATURE_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {CREATURE_TYPE_LABELS[type]}
+                  {type === 'otro' ? 'Otro (escribir…)' : CREATURE_TYPE_LABELS[type]}
                 </option>
               ))}
             </select>
+            {draft.type === 'otro' && (
+              <input
+                className="input input-inline"
+                value={draft.typeCustom}
+                onChange={(e) => update('typeCustom', e.target.value)}
+                placeholder="Escribe el tipo (p. ej. Elemental)"
+                aria-label="Tipo personalizado"
+              />
+            )}
             <input
               className="input input-inline"
               value={draft.habitat}

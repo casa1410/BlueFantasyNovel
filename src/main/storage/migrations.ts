@@ -64,8 +64,12 @@ const MIGRATIONS: Record<number, (project: RawProject) => RawProject> = {
     cover: defaultCover(String(p.title ?? ''))
   }),
   /**
-   * v4 -> v5: rol "terciario" y rol escrito a mano (`roleCustom`) en los
-   * personajes. El campo nuevo lo rellena `withDefaults` al leer.
+   * v4 -> v5: opción "Otro" con texto propio (`roleCustom` en personajes,
+   * `categoryCustom` en lore, `typeCustom` en criaturas), rol "terciario" y
+   * color propio en las relaciones y grupos en el mapa de relaciones
+   * (`relationGroups`) e imagen original de las criaturas (`fullImage`).
+   * Los campos nuevos los rellena
+   * `withDefaults` al leer.
    */
   4: (p) => ({ ...p, schemaVersion: 5 })
 }
@@ -112,6 +116,7 @@ function withDefaults(raw: RawProject): Project {
     lore: complete('lore', p.lore),
     creatures: complete('creatures', p.creatures),
     relationships: complete('relationships', p.relationships),
+    relationGroups: complete('relationGroups', p.relationGroups),
     events: complete('events', p.events),
     maps: complete('maps', p.maps),
     boards: complete('boards', p.boards),

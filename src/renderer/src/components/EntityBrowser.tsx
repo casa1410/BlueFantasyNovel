@@ -8,6 +8,7 @@
  */
 import { useMemo, useState, type ReactNode } from 'react'
 import { Download, GripVertical, Plus, Search, type LucideIcon } from 'lucide-react'
+import { groupWithCustom } from '@shared/labels'
 import type { EntityCollection, EntityInput, EntityMap, Id, Project } from '@shared/types'
 import { api, errorMessage } from '@renderer/lib/api'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -28,8 +29,15 @@ interface EntityBrowserProps<C extends EntityCollection> {
   nameOf: (entity: EntityMap[C]) => string
   /** Texto adicional en el que buscar (etiquetas, tipo…). */
   searchTextOf?: (entity: EntityMap[C]) => string
-  /** Agrupación opcional de la lista: devuelve la clave del grupo. */
-  groups?: { order: readonly string[]; label: (key: string) => string; keyOf: (entity: EntityMap[C]) => string }
+  /**
+   * Agrupación opcional de la lista: devuelve la clave del grupo. Las claves
+   * `otro:<texto>` (ver `customGroupKey`) forman grupos propios antes de "Otro".
+   */
+  groups?: {
+    order: readonly string[]
+    label: (key: string, sample: EntityMap[C]) => string
+    keyOf: (entity: EntityMap[C]) => string
+  }
   /** Cómo se ordena la lista dentro de cada grupo (por defecto, alfabético). */
   compare?: (a: EntityMap[C], b: EntityMap[C]) => number
 
@@ -70,9 +78,7 @@ export function EntityBrowser<C extends EntityCollection>(props: EntityBrowserPr
 
     if (!props.groups) return [{ key: '', label: '', items: filtered }]
     const { order, label, keyOf } = props.groups
-    return order
-      .map((key) => ({ key, label: label(key), items: filtered.filter((item) => keyOf(item) === key) }))
-      .filter((section) => section.items.length > 0)
+    return groupWithCustom(filtered, order, keyOf, label)
   }, [items, query, nameOf, props.compare, props.searchTextOf, props.groups, props.reorderable])
 
   const resetDrag = () => {

@@ -7,9 +7,9 @@ import { BookA, Crown } from 'lucide-react'
 import type { Id, MentionableCollection, Project } from '@shared/types'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { initials } from '@renderer/lib/covers'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS } from '../../bestiary/bestiaryOptions'
+import { DANGER_LABELS, creatureTypeLabel } from '../../bestiary/bestiaryOptions'
 import { characterRoleLabel } from '../../characters/characterOptions'
-import { LORE_CATEGORY_INFO } from '../../lore/loreOptions'
+import { loreCategoryInfo } from '../../lore/loreOptions'
 
 export interface HoveredMention {
   kind: MentionableCollection
@@ -70,7 +70,7 @@ function describe(project: Project, { kind, id }: HoveredMention) {
   if (kind === 'lore') {
     const l = project.lore.find((x) => x.id === id)
     if (!l) return null
-    const { icon: Icon, color, label } = LORE_CATEGORY_INFO[l.category]
+    const { icon: Icon, color, label } = loreCategoryInfo(l)
     return {
       name: l.title,
       subtitle: label,
@@ -122,7 +122,7 @@ function describe(project: Project, { kind, id }: HoveredMention) {
   if (!c) return null
   return {
     name: c.name,
-    subtitle: `${CREATURE_TYPE_LABELS[c.type]} · ${DANGER_LABELS[c.danger]}`,
+    subtitle: `${creatureTypeLabel(c)} · ${DANGER_LABELS[c.danger]}`,
     thumb: <EntityThumb projectId={project.id} image={c.image} shape="rounded" size={40} fallback={initials(c.name)} />,
     lines: lines([
       ['Hábitat', c.habitat],

@@ -28,6 +28,7 @@ import type {
   MentionIndex,
   NewProjectInput,
   Project,
+  RelationMapState,
   ProjectPatch,
   ProjectSummary,
   RestoreSummary,
@@ -66,6 +67,7 @@ export const IPC = {
   entitiesDelete: 'entities:delete',
   entitiesImport: 'entities:import',
   entitiesReorder: 'entities:reorder',
+  relationsApply: 'relations:apply',
 
   assetsPickImage: 'assets:pick-image',
   assetsPickImages: 'assets:pick-images',
@@ -170,6 +172,13 @@ export interface BlueFantasyApi {
     ): Promise<Project>
     /** Cambia el orden de una colección (arrastrar en la lista). `orderedIds` debe incluirlas todas. */
     reorder(projectId: Id, collection: EntityCollection, orderedIds: Id[]): Promise<Project>
+  }
+  relations: {
+    /**
+     * Deja el mapa de relaciones (relaciones, grupos y posiciones) como en
+     * `state`, en un solo paso. Para deshacer/rehacer y para agrupar.
+     */
+    apply(projectId: Id, state: RelationMapState): Promise<Project>
   }
   assets: {
     /**

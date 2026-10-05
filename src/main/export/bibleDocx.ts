@@ -5,10 +5,10 @@
  */
 import { AlignmentType, Document, HeadingLevel, ImageRun, Packer, Paragraph, TextRun } from 'docx'
 import { compareEvents, formatWorldDate } from '@shared/calendar'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS, LORE_CATEGORY_LABELS, RELATION_LABELS, characterRoleLabel } from '@shared/labels'
+import { DANGER_LABELS, characterRoleLabel, creatureTypeLabel, loreCategoryLabel, relationLabel } from '@shared/labels'
 import { manuscriptChapters } from '@shared/manuscript'
-import { LORE_CATEGORIES, type AssetFileName, type Id } from '@shared/types'
-import type { BibleData } from './bible'
+import type { AssetFileName, Id } from '@shared/types'
+import { groupLines, loreGroups, type BibleData } from './bible'
 
 export async function bibleToDocx({ project, images }: BibleData): Promise<Buffer> {
   const out: Paragraph[] = []
@@ -64,7 +64,8 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
         'Relaciones',
         project.relationships
           .filter((r) => r.sourceId === c.id || r.targetId === c.id)
-          .map((r) => `${r.label || RELATION_LABELS[r.kind].label}: ${nameOf(r.sourceId === c.id ? r.targetId : r.sourceId, project.characters)}`)
+          .map((r) => `${relationLabel(r)}: ${nameOf(r.sourceId === c.id ? r.targetId : r.sourceId, project.characters)}`)
+          .concat(groupLines(project, c.id))
           .join('\n')
       )
       field('Notas', c.notes)
@@ -99,9 +100,9 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
 
   if (project.lore.length) {
     part('Lore')
-    for (const category of LORE_CATEGORIES) {
-      for (const l of project.lore.filter((x) => x.category === category)) {
-        entry(`${l.title} (${LORE_CATEGORY_LABELS[category].label})`)
+    for (const group of loreGroups(project.lore)) {
+      for (const l of group.items) {
+        entry(`${l.title} (${loreCategoryLabel(l)})`)
         image(l.image, 400)
         meta(l.summary)
         field('Descripción', l.body)
@@ -126,7 +127,7 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
     for (const c of project.creatures) {
       entry(c.name)
       image(c.image, 160)
-      meta(`${CREATURE_TYPE_LABELS[c.type]} · Peligrosidad: ${DANGER_LABELS[c.danger]} (${c.danger}/5)`)
+      meta(`${creatureTypeLabel(c)} · Peligrosidad: ${DANGER_LABELS[c.danger]} (${c.danger}/5)`)
       field('Hábitat', c.habitat)
       field('Tamaño', c.size)
       field('Apariencia', c.appearance)

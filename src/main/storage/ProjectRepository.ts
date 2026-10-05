@@ -37,6 +37,7 @@ import { createMentionMatcher, mentionTargets } from '@shared/mentions'
 import {
   CURRENT_SCHEMA_VERSION,
   ENTITY_COLLECTIONS,
+  RELATIONSHIP_KINDS,
   WORLD_COLLECTIONS,
   type AssetFileName,
   type ChapterMeta,
@@ -50,7 +51,9 @@ import {
   type NewProjectInput,
   type Project,
   type ProjectPatch,
+  type Point,
   type ProjectSummary,
+  type RelationMapState,
   type RichTextNode,
   type Saga,
   type SearchOptions,
@@ -143,6 +146,7 @@ export class ProjectRepository {
       lore: [],
       creatures: [],
       relationships: [],
+      relationGroups: [],
       events: [],
       maps: [],
       boards: [],
@@ -536,6 +540,62 @@ export class ProjectRepository {
     return project
   }
 
+  /**
+   * Deja el mapa de relaciones (relaciones, grupos y posiciones) tal como
+   * indica `state`. Lo usan deshacer/rehacer y "Agrupar", que cambian muchas
+   * cosas a la vez en un solo paso. Los cambios se replican en la saga.
+   */
+  async applyRelationMap(projectId: Id, state: RelationMapState): Promise<Project> {
+    const now = new Date().toISOString()
+    const changed: { collection: 'relationships' | 'relationGroups'; entity: { id: Id } }[] = []
+    const removed: { collection: 'relationships' | 'relationGroups'; id: Id }[] = []
+
+    const project = await this.mutate(projectId, (p) => {
+      const characters = new Set(p.characters.map((c) => c.id))
+      const relationships = sanitizeList(state?.relationships, 'relationships').filter(
+        (r) => characters.has(r.sourceId) && characters.has(r.targetId) && r.sourceId !== r.targetId
+      )
+      for (const r of relationships) if (!(RELATIONSHIP_KINDS as readonly string[]).includes(r.kind)) r.kind = 'otro'
+      const relationGroups = sanitizeList(state?.relationGroups, 'relationGroups').map((g) => ({
+        ...g,
+        memberIds: [...new Set((Array.isArray(g.memberIds) ? g.memberIds : []).filter((id) => characters.has(id)))]
+      }))
+
+      for (const [collection, next] of [
+        ['relationships', relationships],
+        ['relationGroups', relationGroups]
+      ] as const) {
+        const before = new Map(entitiesOf(p, collection).map((e) => [e.id, e]))
+        for (const entity of next as { id: Id; createdAt: string; updatedAt: string }[]) {
+          const old = before.get(entity.id)
+          if (old && sameEntity(old, entity)) {
+            Object.assign(entity, { createdAt: (old as typeof entity).createdAt, updatedAt: (old as typeof entity).updatedAt })
+            continue
+          }
+          // Una ficha recuperada al deshacer conserva su fecha de creación original.
+          const createdAt = (old as typeof entity | undefined)?.createdAt ?? (typeof entity.createdAt === 'string' && entity.createdAt ? entity.createdAt : now)
+          Object.assign(entity, { createdAt, updatedAt: now })
+          changed.push({ collection, entity })
+        }
+        const kept = new Set(next.map((e) => e.id))
+        for (const id of before.keys()) if (!kept.has(id)) removed.push({ collection, id })
+      }
+
+      p.relationships = relationships
+      p.relationGroups = relationGroups
+      const layout: Record<Id, Point> = {}
+      for (const [id, point] of Object.entries(state?.relationLayout ?? {})) {
+        if (point && Number.isFinite(point.x) && Number.isFinite(point.y)) layout[id] = { x: Math.round(point.x), y: Math.round(point.y) }
+      }
+      p.relationLayout = layout
+      return p
+    })
+
+    for (const { collection, entity } of changed) await this.syncToSaga(projectId, collection, entity)
+    for (const { collection, id } of removed) await this.syncDeleteToSaga(projectId, collection, id)
+    return project
+  }
+
   /** Cambia el orden de una colección. `orderedIds` debe contener exactamente sus ids. */
   reorderEntities(projectId: Id, collection: EntityCollection, orderedIds: Id[]): Promise<Project> {
     assertCollection(collection)
@@ -571,8 +631,9 @@ export class ProjectRepository {
     const now = new Date().toISOString()
     const copies: { id: Id; createdAt: string; updatedAt: string }[] = []
     for (const entity of selected) {
-      const copy = structuredClone(entity) as { id: Id; image?: AssetFileName; createdAt: string; updatedAt: string }
+      const copy = structuredClone(entity) as { id: Id; image?: AssetFileName; fullImage?: AssetFileName; createdAt: string; updatedAt: string }
       if (copy.image) copy.image = await this.importAsset(projectId, this.assetPath(sourceProjectId, copy.image))
+      if (copy.fullImage) copy.fullImage = await this.importAsset(projectId, this.assetPath(sourceProjectId, copy.fullImage))
       // Las referencias a otras fichas de la historia de origen no existen aquí.
       if (collection === 'characters') Object.assign(copy, { raceId: null, lineageId: null })
       if (collection === 'lineages') Object.assign(copy, { seatLoreId: null })
@@ -893,12 +954,36 @@ function unreferencedAssets(project: Project, candidates: Set<AssetFileName>): A
 }
 
 /** Quita las referencias a una ficha borrada desde el resto del proyecto. */
+/** Fichas recibidas de la interfaz: con id válido, sin repetir y con todos sus campos. */
+function sanitizeList<C extends 'relationships' | 'relationGroups'>(list: unknown, collection: C): EntityMap[C][] {
+  if (!Array.isArray(list)) throw new Error('Datos del mapa de relaciones no válidos')
+  const seen = new Set<Id>()
+  const result: EntityMap[C][] = []
+  for (const item of list) {
+    if (!item || typeof item !== 'object') continue
+    const id = (item as { id?: unknown }).id
+    assertSafeId(id, 'id')
+    if (seen.has(id)) continue
+    seen.add(id)
+    result.push({ ...withEntityDefaults(collection, structuredClone(item) as object), id } as unknown as EntityMap[C])
+  }
+  return result
+}
+
+/** ¿Misma ficha, sin contar las fechas? */
+function sameEntity(a: object, b: object): boolean {
+  const strip = ({ createdAt: _c, updatedAt: _u, ...rest }: Record<string, unknown>) => rest
+  return JSON.stringify(strip(a as Record<string, unknown>)) === JSON.stringify(strip(b as Record<string, unknown>))
+}
+
 function removeReferences(project: Project, collection: EntityCollection, id: Id): void {
   if (collection === 'characters') {
     project.relationships = project.relationships.filter((r) => r.sourceId !== id && r.targetId !== id)
+    for (const group of project.relationGroups) group.memberIds = group.memberIds.filter((m) => m !== id)
     for (const event of project.events) event.characterIds = event.characterIds.filter((c) => c !== id)
     delete project.relationLayout[id]
   }
+  if (collection === 'relationGroups') delete project.relationLayout[id]
   if (collection === 'lore') {
     for (const event of project.events) event.loreIds = event.loreIds.filter((l) => l !== id)
     for (const map of project.maps) for (const pin of map.pins) if (pin.loreId === id) pin.loreId = null

@@ -2,11 +2,12 @@
  * Sección "Bestiario": criaturas del mundo, agrupadas por tipo.
  */
 import { PawPrint } from 'lucide-react'
+import { customGroupKey } from '@shared/labels'
 import { CREATURE_TYPES, type CreatureType, type EntityInput, type Id, type Project } from '@shared/types'
 import { EntityBrowser } from '@renderer/components/EntityBrowser'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { CreatureForm } from './CreatureForm'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS } from './bestiaryOptions'
+import { CREATURE_TYPE_LABELS, DANGER_LABELS, creatureTypeLabel } from './bestiaryOptions'
 import { DangerMeter } from './DangerMeter'
 
 interface BestiaryViewProps {
@@ -25,16 +26,17 @@ export function BestiaryView({ project, onProjectChange, onOpenChapter }: Bestia
       deleteNoun="la criatura"
       importable
       nameOf={(c) => c.name}
-      searchTextOf={(c) => `${CREATURE_TYPE_LABELS[c.type]} ${c.habitat} ${DANGER_LABELS[c.danger]} ${c.aliases.join(' ')}`}
+      searchTextOf={(c) => `${creatureTypeLabel(c)} ${c.habitat} ${DANGER_LABELS[c.danger]} ${c.aliases.join(' ')}`}
       groups={{
         order: CREATURE_TYPES,
-        label: (key) => CREATURE_TYPE_LABELS[key as CreatureType],
-        keyOf: (c) => c.type
+        label: (key, sample) => (key.startsWith('otro:') ? creatureTypeLabel(sample) : CREATURE_TYPE_LABELS[key as CreatureType]),
+        keyOf: (c) => customGroupKey(c.type, c.typeCustom)
       }}
       newEntity={(): EntityInput<'creatures'> => ({
         name: 'Nueva criatura',
         aliases: [],
         type: 'bestia',
+        typeCustom: '',
         danger: 2,
         habitat: '',
         size: '',
@@ -43,14 +45,15 @@ export function BestiaryView({ project, onProjectChange, onOpenChapter }: Bestia
         abilities: '',
         weaknesses: '',
         notes: '',
-        image: ''
+        image: '',
+        fullImage: ''
       })}
       renderListItem={(c) => (
         <>
           <EntityThumb projectId={project.id} image={c.image} shape="rounded" fallback={<PawPrint size={16} />} />
           <span className="entity-item-text">
             <strong>{c.name || 'Sin nombre'}</strong>
-            <small>{c.habitat || CREATURE_TYPE_LABELS[c.type]}</small>
+            <small>{c.habitat || creatureTypeLabel(c)}</small>
           </span>
           <DangerMeter level={c.danger} compact />
         </>

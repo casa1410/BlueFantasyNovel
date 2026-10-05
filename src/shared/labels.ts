@@ -2,7 +2,7 @@
  * Nombres visibles (en español) de los valores guardados en los datos.
  * Los usan la interfaz y las exportaciones (Biblia del Mundo).
  */
-import type { Character, CharacterRole, CreatureType, DangerLevel, LoreCategory, RelationshipKind } from './types'
+import type { Character, CharacterRole, Creature, CreatureType, DangerLevel, LoreCategory, LoreEntry, Relationship, RelationshipKind } from './types'
 
 export const ROLE_LABELS: Record<CharacterRole, string> = {
   protagonista: 'Protagonista',
@@ -14,10 +14,65 @@ export const ROLE_LABELS: Record<CharacterRole, string> = {
   otro: 'Otro'
 }
 
-/** Rol visible de un personaje: el escrito a mano si lo tiene, o el de la lista. */
+/* -------------------------------------------------------------------------- */
+/* Opción "Otro" con texto propio                                             */
+/* -------------------------------------------------------------------------- */
+//
+// En las listas con "Otro" (rol, categoría de lore, tipo de criatura, tipo de
+// relación) el usuario puede escribir lo que quiera. Estas funciones dan el
+// texto visible: el escrito a mano si lo hay, o el de la lista.
+
+/** Texto escrito a mano para la opción 'otro' ('' si no hay o no es 'otro'). */
+function customText(value: string, custom: string | undefined): string {
+  return value === 'otro' ? (custom ?? '').trim() : ''
+}
+
 export function characterRoleLabel(c: Pick<Character, 'role' | 'roleCustom'>): string {
-  const custom = c.role === 'otro' ? (c.roleCustom ?? '').trim() : ''
-  return custom || ROLE_LABELS[c.role] || ROLE_LABELS.otro
+  return customText(c.role, c.roleCustom) || ROLE_LABELS[c.role] || ROLE_LABELS.otro
+}
+
+export function loreCategoryLabel(l: Pick<LoreEntry, 'category' | 'categoryCustom'>): string {
+  return customText(l.category, l.categoryCustom) || (LORE_CATEGORY_LABELS[l.category] ?? LORE_CATEGORY_LABELS.otro).label
+}
+
+export function creatureTypeLabel(c: Pick<Creature, 'type' | 'typeCustom'>): string {
+  return customText(c.type, c.typeCustom) || CREATURE_TYPE_LABELS[c.type] || CREATURE_TYPE_LABELS.otro
+}
+
+/** Texto de una relación: su etiqueta, o el nombre de su tipo. */
+export function relationLabel(r: Pick<Relationship, 'kind' | 'label'>): string {
+  return r.label.trim() || (RELATION_LABELS[r.kind] ?? RELATION_LABELS.otro).label
+}
+
+/**
+ * Clave para agrupar por categoría: la categoría fija, o `otro:<texto>` para
+ * cada texto escrito a mano (sin distinguir mayúsculas).
+ */
+export function customGroupKey(value: string, custom: string | undefined): string {
+  const text = customText(value, custom)
+  return text ? `otro:${text.toLocaleLowerCase('es')}` : value
+}
+
+/**
+ * Grupos en orden: los fijos de `order` (sin 'otro'), después los escritos a
+ * mano por orden alfabético y al final 'otro'. `label` recibe la clave y un
+ * elemento del grupo, para poder mostrar el texto tal como se escribió.
+ */
+export function groupWithCustom<T>(
+  items: T[],
+  order: readonly string[],
+  keyOf: (item: T) => string,
+  label: (key: string, sample: T) => string
+): { key: string; label: string; items: T[] }[] {
+  const byKey = new Map<string, T[]>()
+  for (const item of items) {
+    const key = keyOf(item)
+    byKey.set(key, [...(byKey.get(key) ?? []), item])
+  }
+  const custom = [...byKey.keys()].filter((k) => k.startsWith('otro:')).sort((a, b) => a.localeCompare(b, 'es'))
+  return [...order.filter((k) => k !== 'otro'), ...custom, 'otro']
+    .filter((key) => byKey.has(key))
+    .map((key) => ({ key, label: label(key, byKey.get(key)![0]), items: byKey.get(key)! }))
 }
 
 export const LORE_CATEGORY_LABELS: Record<LoreCategory, { label: string; plural: string }> = {

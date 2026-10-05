@@ -28,11 +28,12 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     lineageId: null,
     image: ''
   },
-  lore: { title: '', aliases: [], category: 'otro', summary: '', body: '', tags: [], image: '' },
+  lore: { title: '', aliases: [], category: 'otro', categoryCustom: '', summary: '', body: '', tags: [], image: '' },
   creatures: {
     name: '',
     aliases: [],
     type: 'otro',
+    typeCustom: '',
     danger: 1,
     habitat: '',
     size: '',
@@ -41,9 +42,11 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     abilities: '',
     weaknesses: '',
     notes: '',
-    image: ''
+    image: '',
+    fullImage: ''
   },
-  relationships: { sourceId: '', targetId: '', kind: 'otro', label: '', notes: '' },
+  relationships: { sourceId: '', targetId: '', kind: 'otro', label: '', color: '', notes: '' },
+  relationGroups: { name: '', color: '#4fd1a5', memberIds: [], notes: '' },
   events: {
     title: '',
     description: '',

@@ -3,11 +3,12 @@
  * objetos, historia, religiones, culturas…), agrupada por categoría.
  */
 import { ScrollText } from 'lucide-react'
+import { customGroupKey } from '@shared/labels'
 import { LORE_CATEGORIES, type EntityInput, type Id, type LoreCategory, type Project } from '@shared/types'
 import { EntityBrowser } from '@renderer/components/EntityBrowser'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { LoreForm } from './LoreForm'
-import { LORE_CATEGORY_INFO } from './loreOptions'
+import { LORE_CATEGORY_INFO, loreCategoryInfo } from './loreOptions'
 
 interface LoreViewProps {
   project: Project
@@ -25,23 +26,24 @@ export function LoreView({ project, onProjectChange, onOpenChapter }: LoreViewPr
       deleteNoun="la entrada"
       importable
       nameOf={(entry) => entry.title}
-      searchTextOf={(entry) => `${entry.summary} ${entry.tags.join(' ')} ${entry.aliases.join(' ')} ${LORE_CATEGORY_INFO[entry.category].label}`}
+      searchTextOf={(entry) => `${entry.summary} ${entry.tags.join(' ')} ${entry.aliases.join(' ')} ${loreCategoryInfo(entry).label}`}
       groups={{
         order: LORE_CATEGORIES,
-        label: (key) => LORE_CATEGORY_INFO[key as LoreCategory].plural,
-        keyOf: (entry) => entry.category
+        label: (key, sample) => (key.startsWith('otro:') ? loreCategoryInfo(sample).label : LORE_CATEGORY_INFO[key as LoreCategory].plural),
+        keyOf: (entry) => customGroupKey(entry.category, entry.categoryCustom)
       }}
       newEntity={(): EntityInput<'lore'> => ({
         title: 'Nueva entrada',
         aliases: [],
         category: 'lugar',
+        categoryCustom: '',
         summary: '',
         body: '',
         tags: [],
         image: ''
       })}
       renderListItem={(entry) => {
-        const { icon: Icon, color } = LORE_CATEGORY_INFO[entry.category]
+        const { icon: Icon, color, label } = loreCategoryInfo(entry)
         return (
           <>
             <EntityThumb
@@ -53,7 +55,7 @@ export function LoreView({ project, onProjectChange, onOpenChapter }: LoreViewPr
             />
             <span className="entity-item-text">
               <strong>{entry.title || 'Sin título'}</strong>
-              <small>{entry.summary || LORE_CATEGORY_INFO[entry.category].label}</small>
+              <small>{entry.summary || label}</small>
             </span>
           </>
         )

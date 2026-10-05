@@ -5,11 +5,12 @@
 import { useState } from 'react'
 import { ArrowLeftRight, Trash2, X } from 'lucide-react'
 import { RELATIONSHIP_KINDS, type Project, type Relationship, type RelationshipKind } from '@shared/types'
+import { ColorPicker } from '@renderer/components/ColorPicker'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useToast } from '@renderer/components/Toasts'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { api, errorMessage } from '@renderer/lib/api'
-import { RELATION_INFO } from './relationOptions'
+import { RELATION_INFO, relationColor } from './relationOptions'
 
 interface RelationshipPanelProps {
   project: Project
@@ -24,6 +25,7 @@ export function RelationshipPanel({ project, relationship, onProjectChange, onCl
   const toast = useToast()
   const nameOf = (id: string) => project.characters.find((c) => c.id === id)?.name ?? '¿?'
   const info = RELATION_INFO[draft.kind]
+  const color = relationColor(draft)
 
   const remove = async () => {
     try {
@@ -46,7 +48,7 @@ export function RelationshipPanel({ project, relationship, onProjectChange, onCl
 
       <div className="relation-summary">
         <strong>{nameOf(draft.sourceId)}</strong>
-        <span style={{ color: info.color }}>{info.directed ? '→' : '↔'}</span>
+        <span style={{ color }}>{info.directed ? '→' : '↔'}</span>
         <strong>{nameOf(draft.targetId)}</strong>
         {info.directed && (
           <button
@@ -68,7 +70,7 @@ export function RelationshipPanel({ project, relationship, onProjectChange, onCl
         <select className="select" value={draft.kind} onChange={(e) => update('kind', e.target.value as RelationshipKind)}>
           {RELATIONSHIP_KINDS.map((kind) => (
             <option key={kind} value={kind}>
-              {RELATION_INFO[kind].label}
+              {kind === 'otro' ? 'Otra (escribir…)' : RELATION_INFO[kind].label}
             </option>
           ))}
         </select>
@@ -80,9 +82,30 @@ export function RelationshipPanel({ project, relationship, onProjectChange, onCl
       )}
 
       <label className="field">
-        <span className="field-label">Etiqueta (opcional)</span>
-        <input className="input" value={draft.label} onChange={(e) => update('label', e.target.value)} placeholder={info.label} />
+        <span className="field-label">{draft.kind === 'otro' ? '¿Qué relación es?' : 'Etiqueta (opcional)'}</span>
+        <input
+          className="input"
+          value={draft.label}
+          onChange={(e) => update('label', e.target.value)}
+          placeholder={draft.kind === 'otro' ? 'Escribe la relación (p. ej. Deuda de sangre)' : info.label}
+        />
       </label>
+
+      <div className="field">
+        <span className="field-label">Color de la línea</span>
+        <div className="relation-color-row">
+          <button
+            type="button"
+            className={`color-swatch ${draft.color ? '' : 'is-active'}`}
+            style={{ background: info.color }}
+            onClick={() => update('color', '')}
+            title={`Color del tipo (${info.label})`}
+            aria-label="Color del tipo"
+          />
+          <ColorPicker value={color} onChange={(c) => update('color', c)} active={Boolean(draft.color)} />
+          <span className="faint">{draft.color ? 'Color propio' : 'Color del tipo'}</span>
+        </div>
+      </div>
 
       <label className="field">
         <span className="field-label">Notas</span>

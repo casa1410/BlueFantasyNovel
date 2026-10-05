@@ -285,7 +285,8 @@
   opacity: 1;
 }
 .image-picker-remove,
-.image-picker-crop {
+.image-picker-crop,
+.image-picker-change {
   position: absolute;
   top: 4px;
   right: 4px;
@@ -305,11 +306,19 @@
   top: auto;
   bottom: 4px;
 }
+.image-picker-change {
+  top: auto;
+  right: auto;
+  bottom: 4px;
+  left: 4px;
+}
 .image-picker:hover .image-picker-remove,
-.image-picker:hover .image-picker-crop {
+.image-picker:hover .image-picker-crop,
+.image-picker:hover .image-picker-change {
   opacity: 1;
 }
-.image-picker-crop:hover {
+.image-picker-crop:hover,
+.image-picker-change:hover {
   background: var(--accent);
 }
 .image-picker-remove:hover {

@@ -8,7 +8,7 @@ import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
-import { LORE_CATEGORY_INFO } from './loreOptions'
+import { LORE_CATEGORY_INFO, loreCategoryInfo } from './loreOptions'
 import './lore.css'
 
 interface LoreFormProps {
@@ -22,7 +22,7 @@ interface LoreFormProps {
 
 export function LoreForm({ projectId, entry, chapters, onProjectChange, onDelete, onOpenChapter }: LoreFormProps) {
   const { draft, update, setImage, status } = useEntityForm(projectId, 'lore', entry, onProjectChange)
-  const { icon: CategoryIcon, color } = LORE_CATEGORY_INFO[draft.category]
+  const { icon: CategoryIcon, color } = loreCategoryInfo(draft)
 
   return (
     <div className="entity-form">
@@ -49,10 +49,19 @@ export function LoreForm({ projectId, entry, chapters, onProjectChange, onDelete
             >
               {LORE_CATEGORIES.map((category) => (
                 <option key={category} value={category}>
-                  {LORE_CATEGORY_INFO[category].label}
+                  {category === 'otro' ? 'Otro (escribir…)' : LORE_CATEGORY_INFO[category].label}
                 </option>
               ))}
             </select>
+            {draft.category === 'otro' && (
+              <input
+                className="input input-inline"
+                value={draft.categoryCustom}
+                onChange={(e) => update('categoryCustom', e.target.value)}
+                placeholder="Escribe la categoría (p. ej. Tecnología)"
+                aria-label="Categoría personalizada"
+              />
+            )}
             <ListInput
               className="input lore-tags-input"
               value={draft.tags}

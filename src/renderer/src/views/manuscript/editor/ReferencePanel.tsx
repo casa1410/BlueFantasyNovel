@@ -32,9 +32,9 @@ import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { api } from '@renderer/lib/api'
 import { initials } from '@renderer/lib/covers'
 import { relativeTime } from '@renderer/lib/format'
-import { CREATURE_TYPE_LABELS, DANGER_LABELS } from '../../bestiary/bestiaryOptions'
+import { DANGER_LABELS, creatureTypeLabel } from '../../bestiary/bestiaryOptions'
 import { characterRoleLabel } from '../../characters/characterOptions'
-import { LORE_CATEGORY_INFO } from '../../lore/loreOptions'
+import { loreCategoryInfo } from '../../lore/loreOptions'
 
 /** Forma común con la que el panel pinta cualquier tipo de ficha. */
 interface ReferenceItem {
@@ -118,7 +118,7 @@ const TABS: TabDefinition[] = [
     icon: ScrollText,
     items: (project) =>
       project.lore.map((entry) => {
-        const { icon: Icon, color, label } = LORE_CATEGORY_INFO[entry.category]
+        const { icon: Icon, color, label } = loreCategoryInfo(entry)
         return {
           id: entry.id,
           name: entry.title,
@@ -153,7 +153,7 @@ const TABS: TabDefinition[] = [
       project.creatures.map((c) => ({
         id: c.id,
         name: c.name,
-        subtitle: `${CREATURE_TYPE_LABELS[c.type]} · ${DANGER_LABELS[c.danger]}`,
+        subtitle: `${creatureTypeLabel(c)} · ${DANGER_LABELS[c.danger]}`,
         thumb: <EntityThumb projectId={project.id} image={c.image} shape="rounded" fallback={<PawPrint size={16} />} />,
         details: [
           { label: 'Hábitat', value: c.habitat },
