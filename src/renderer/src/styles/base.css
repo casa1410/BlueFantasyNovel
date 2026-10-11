@@ -334,6 +334,63 @@ p {
   margin-left: auto;
   color: var(--text-faint);
 }
+/* El menú de exportar es largo: con la ventana baja, se desplaza. */
+.export-menu {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+/* Exportar capítulos */
+.export-chapters-actions {
+  display: flex;
+  gap: 6px;
+}
+.export-chapters {
+  display: flex;
+  flex-direction: column;
+  max-height: 360px;
+  overflow-y: auto;
+}
+.export-chapters-caption {
+  margin: 12px 0 4px;
+  color: var(--text-faint);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.export-chapter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  cursor: pointer;
+}
+.export-chapter:hover {
+  background: var(--surface-hover);
+}
+.export-chapter.is-on {
+  background: var(--accent-soft);
+}
+.export-chapter-number {
+  width: 20px;
+  color: var(--text-faint);
+  font-size: 12px;
+  text-align: right;
+}
+.export-chapter-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.export-format {
+  width: auto;
+  margin-right: auto;
+}
 
 /* ------------------------------------------------------------------------ */
 /* Utilidades                                                               */

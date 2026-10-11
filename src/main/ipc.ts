@@ -143,9 +143,12 @@ export function registerIpcHandlers(repository: ProjectRepository, settings: Set
   })
 
   // Exportación
-  handle(IPC.exportProject, (event, projectId, format: ExportFormat) => {
+  handle(IPC.exportProject, (event, projectId, format: ExportFormat, chapterIds?: unknown) => {
     if (!EXPORT_FORMATS.includes(format)) throw new Error(`Formato no soportado: ${format}`)
-    return exportProject(repository, projectId, format, windowOf(event))
+    if (chapterIds !== undefined && (!Array.isArray(chapterIds) || !chapterIds.every((id) => typeof id === 'string'))) {
+      throw new Error('Lista de capítulos no válida')
+    }
+    return exportProject(repository, projectId, format, windowOf(event), chapterIds as string[] | undefined)
   })
   handle(IPC.exportBible, (event, projectId, format: BibleFormat) => {
     if (!BIBLE_FORMATS.includes(format)) throw new Error(`Formato no soportado: ${format}`)

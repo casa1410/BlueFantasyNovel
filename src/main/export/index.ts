@@ -40,16 +40,24 @@ export async function exportProject(
   repository: ProjectRepository,
   projectId: Id,
   format: ExportFormat,
-  parentWindow: BrowserWindow | null
+  parentWindow: BrowserWindow | null,
+  /** Solo estos capítulos (sin indicar: el manuscrito completo). */
+  chapterIds?: Id[]
 ): Promise<ExportResult> {
   const definition = FORMATS[format]
   if (!definition) throw new Error(`Formato de exportación no soportado: ${format}`)
 
-  const manuscript = await loadManuscript(repository, projectId)
-  const defaultPath = path.join(app.getPath('documents'), `${safeFileName(manuscript.title)}.${definition.extension}`)
+  const manuscript = await loadManuscript(repository, projectId, chapterIds)
+  // "Mi novela - Capítulo 3", "Mi novela (3 capítulos)" o "Mi novela".
+  const name = !chapterIds
+    ? manuscript.title
+    : manuscript.chapters.length === 1
+      ? `${manuscript.title} - ${manuscript.chapters[0].title}`
+      : `${manuscript.title} (${manuscript.chapters.length} capítulos)`
+  const defaultPath = path.join(app.getPath('documents'), `${safeFileName(name)}.${definition.extension}`)
 
   const dialogOptions = {
-    title: 'Exportar manuscrito',
+    title: chapterIds ? 'Exportar capítulos' : 'Exportar manuscrito',
     defaultPath,
     filters: [{ name: definition.label, extensions: [definition.extension] }]
   }

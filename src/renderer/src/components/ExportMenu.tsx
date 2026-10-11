@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { BookOpen, Download, FileText, FileType2, Globe, Hash, Library, Type } from 'lucide-react'
-import type { BibleFormat, ExportFormat, ExportResult, Id } from '@shared/types'
+import { BookOpen, Download, FileText, FileType2, Globe, Hash, Library, ListChecks, Type } from 'lucide-react'
+import type { BibleFormat, ChapterMeta, ExportFormat, ExportResult, Id } from '@shared/types'
 import { api, errorMessage } from '@renderer/lib/api'
 import { flushAll } from '@renderer/lib/pendingSaves'
+import { ExportChaptersDialog } from './ExportChaptersDialog'
 import { useToast } from './Toasts'
 
 const MANUSCRIPT: { format: ExportFormat; label: string; extension: string; icon: typeof FileText }[] = [
@@ -21,12 +22,14 @@ const BIBLE: { format: BibleFormat; label: string; extension: string; icon: type
 ]
 
 /**
- * Botón "Exportar": el manuscrito en varios formatos y la Biblia del Mundo
- * (todo el worldbuilding). Las versiones HTML son un único archivo que se
- * puede enviar o subir a Google Drive y compartir por enlace.
+ * Botón "Exportar": el manuscrito en varios formatos, el capítulo abierto o
+ * los capítulos que se elijan, y la Biblia del Mundo (todo el worldbuilding).
+ * Las versiones HTML son un único archivo que se puede enviar o subir a
+ * Google Drive y compartir por enlace.
  */
-export function ExportMenu({ projectId }: { projectId: Id }) {
+export function ExportMenu({ projectId, chapter, chapters }: { projectId: Id; chapter: ChapterMeta; chapters: ChapterMeta[] }) {
   const [open, setOpen] = useState(false)
+  const [choosing, setChoosing] = useState(false)
   const [busy, setBusy] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const toast = useToast()
@@ -62,7 +65,7 @@ export function ExportMenu({ projectId }: { projectId: Id }) {
         {busy ? 'Exportando…' : 'Exportar'}
       </button>
       {open && (
-        <div className="dropdown-menu" role="menu">
+        <div className="dropdown-menu export-menu" role="menu">
           <div className="dropdown-caption">Manuscrito</div>
           {MANUSCRIPT.map(({ format, label, extension, icon: Icon }) => (
             <button key={format} className="dropdown-item" role="menuitem" onClick={() => run(() => api.exporter.exportProject(projectId, format))}>
@@ -71,6 +74,31 @@ export function ExportMenu({ projectId }: { projectId: Id }) {
               <small>{extension}</small>
             </button>
           ))}
+          <div className="dropdown-separator" />
+          <div className="dropdown-caption">Solo «{chapter.title}»</div>
+          {MANUSCRIPT.filter((m) => m.format === 'docx' || m.format === 'pdf').map(({ format, extension, icon: Icon }) => (
+            <button
+              key={format}
+              className="dropdown-item"
+              role="menuitem"
+              onClick={() => run(() => api.exporter.exportProject(projectId, format, [chapter.id]))}
+            >
+              <Icon size={16} />
+              Este capítulo en {format === 'docx' ? 'Word' : 'PDF'}
+              <small>{extension}</small>
+            </button>
+          ))}
+          <button
+            className="dropdown-item"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false)
+              setChoosing(true)
+            }}
+          >
+            <ListChecks size={16} />
+            Elegir capítulos…
+          </button>
           <div className="dropdown-separator" />
           <div className="dropdown-caption">Personajes, lore, bestiario, cronología, mapas…</div>
           {BIBLE.map(({ format, label, extension, icon: Icon }) => (
@@ -81,6 +109,19 @@ export function ExportMenu({ projectId }: { projectId: Id }) {
             </button>
           ))}
         </div>
+      )}
+
+      {choosing && (
+        <ExportChaptersDialog
+          chapters={chapters}
+          initialChapterId={chapter.id}
+          formats={MANUSCRIPT}
+          onClose={() => setChoosing(false)}
+          onExport={(format, ids) => {
+            setChoosing(false)
+            void run(() => api.exporter.exportProject(projectId, format, ids))
+          }}
+        />
       )}
     </div>
   )

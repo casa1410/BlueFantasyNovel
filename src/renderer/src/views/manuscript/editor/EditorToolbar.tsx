@@ -22,7 +22,7 @@ import {
   Undo2,
   type LucideIcon
 } from 'lucide-react'
-import type { Id } from '@shared/types'
+import type { ChapterMeta, Id } from '@shared/types'
 import { ExportMenu } from '@renderer/components/ExportMenu'
 import { fillerWordsKey } from './FillerWords'
 import { SprintButton, type Sprint } from './SprintButton'
@@ -30,6 +30,9 @@ import { SprintButton, type Sprint } from './SprintButton'
 interface EditorToolbarProps {
   editor: Editor | null
   projectId: Id
+  /** Capítulo abierto y todos los capítulos (para exportar solo algunos). */
+  chapter: ChapterMeta
+  chapters: ChapterMeta[]
   showFillers: boolean
   onToggleFillers: () => void
   showMentions: boolean
@@ -135,7 +138,7 @@ export function EditorToolbar(props: EditorToolbarProps) {
         active={props.focusMode}
         onClick={props.onToggleFocusMode}
       />
-      {!props.focusMode && <ExportMenu projectId={props.projectId} />}
+      {!props.focusMode && <ExportMenu projectId={props.projectId} chapter={props.chapter} chapters={props.chapters} />}
     </div>
   )
 }

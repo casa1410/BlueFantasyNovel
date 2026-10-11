@@ -13,11 +13,19 @@ export interface Manuscript {
   chapters: { title: string; doc: RichTextNode }[]
 }
 
-export async function loadManuscript(repository: ProjectRepository, projectId: Id): Promise<Manuscript> {
+/**
+ * Sin `chapterIds`: el manuscrito (todos los capítulos menos los borradores).
+ * Con `chapterIds`: solo esos capítulos, en el orden de la historia (también
+ * borradores, si se eligen).
+ */
+export async function loadManuscript(repository: ProjectRepository, projectId: Id, chapterIds?: Id[]): Promise<Manuscript> {
   const project = await repository.getProject(projectId)
+  const selected = chapterIds
+    ? project.chapters.filter((c) => chapterIds.includes(c.id))
+    : manuscriptChapters(project.chapters)
+  if (chapterIds && selected.length === 0) throw new Error('Elige al menos un capítulo para exportar')
   const chapters = await Promise.all(
-    // Los borradores no forman parte del manuscrito.
-    manuscriptChapters(project.chapters).map(async (chapter) => ({
+    selected.map(async (chapter) => ({
       title: chapter.title,
       doc: await repository.getChapterContent(projectId, chapter.id)
     }))

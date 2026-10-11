@@ -73,7 +73,7 @@ const api: BlueFantasyApi = {
     restore: () => invoke(IPC.backupRestore)
   },
   exporter: {
-    exportProject: (projectId, format) => invoke(IPC.exportProject, projectId, format),
+    exportProject: (projectId, format, chapterIds) => invoke(IPC.exportProject, projectId, format, chapterIds),
     exportBible: (projectId, format) => invoke(IPC.exportBible, projectId, format)
   },
   sagas: {

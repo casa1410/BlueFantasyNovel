@@ -223,8 +223,11 @@ export interface BlueFantasyApi {
     restore(): Promise<RestoreSummary | null>
   }
   exporter: {
-    /** Abre el diálogo "Guardar como" y exporta el manuscrito completo. */
-    exportProject(projectId: Id, format: ExportFormat): Promise<ExportResult>
+    /**
+     * Abre el diálogo "Guardar como" y exporta el manuscrito completo o, con
+     * `chapterIds`, solo esos capítulos (en el orden de la historia).
+     */
+    exportProject(projectId: Id, format: ExportFormat, chapterIds?: Id[]): Promise<ExportResult>
     /** Exporta la Biblia del Mundo (todo el worldbuilding). */
     exportBible(projectId: Id, format: BibleFormat): Promise<ExportResult>
   }
