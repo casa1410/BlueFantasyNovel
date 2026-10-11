@@ -136,9 +136,10 @@ function TimelineAxis({ project, selectedId, onSelect }: SubviewProps) {
     [project.events, project.calendar, range, scale]
   )
 
-  // Zoom con Ctrl + rueda, manteniendo fijo el instante bajo el cursor.
+  // Rueda: avanza o retrocede en el tiempo (horizontal). Mayús + rueda: sube
+  // y baja. Ctrl + rueda: zoom, manteniendo fijo el instante bajo el cursor.
   // Listener nativo NO pasivo: React registra la rueda como pasiva y no
-  // permitiría evitar el zoom de toda la ventana.
+  // permitiría cambiar lo que hace la rueda.
   const latest = useRef({ scale, geometry })
   latest.current = { scale, geometry }
   const pendingScroll = useRef<number | null>(null)
@@ -147,7 +148,21 @@ function TimelineAxis({ project, selectedId, onSelect }: SubviewProps) {
     if (!box) return
     const onWheel = (e: globalThis.WheelEvent) => {
       const { scale: current, geometry: geo } = latest.current
-      if (!e.ctrlKey || current === null) return
+      if (!e.ctrlKey) {
+        const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? box.clientHeight : 1
+        if (e.shiftKey) {
+          // Chromium convierte Mayús + rueda en horizontal (deltaX): aquí es vertical.
+          e.preventDefault()
+          box.scrollTop += (e.deltaY || e.deltaX) * unit
+          return
+        }
+        // Panel táctil deslizando en horizontal: ya va de lado, se deja tal cual.
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
+        e.preventDefault()
+        box.scrollLeft += e.deltaY * unit
+        return
+      }
+      if (current === null) return
       e.preventDefault()
       const cursorX = e.clientX - box.getBoundingClientRect().left + box.scrollLeft
       pendingScroll.current = geo.toPosition(cursorX)
@@ -179,7 +194,7 @@ function TimelineAxis({ project, selectedId, onSelect }: SubviewProps) {
         <button className="icon-btn" onClick={fit} title="Ajustar a la ventana">
           <Maximize size={15} />
         </button>
-        <span className="faint">Ctrl + rueda para acercar</span>
+        <span className="faint">Rueda para avanzar · Ctrl + rueda para acercar</span>
       </div>
       <div className="timeline-scroll" ref={scrollRef}>
         <div className="timeline-canvas" style={{ width: geometry.width, height: geometry.height }}>
