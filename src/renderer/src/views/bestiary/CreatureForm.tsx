@@ -1,11 +1,13 @@
 /**
  * Ficha editable de una criatura. Debe montarse con `key={creature.id}`.
  */
-import { PawPrint, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { PawPrint, Replace, Trash2 } from 'lucide-react'
 import { CREATURE_TYPES, type ChapterMeta, type Creature, type CreatureType, type Id, type Project } from '@shared/types'
 import { AppearancesPanel } from '@renderer/components/AppearancesPanel'
 import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
+import { RenameDialog } from '@renderer/components/RenameDialog'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { CREATURE_TYPE_LABELS } from './bestiaryOptions'
@@ -31,7 +33,8 @@ const TEXT_SECTIONS: { key: TextField; label: string; hint: string; wide?: boole
 ]
 
 export function CreatureForm({ projectId, creature, chapters, onProjectChange, onDelete, onOpenChapter }: CreatureFormProps) {
-  const { draft, update, setImage, status } = useEntityForm(projectId, 'creatures', creature, onProjectChange)
+  const { draft, update, setImage, flush, status } = useEntityForm(projectId, 'creatures', creature, onProjectChange)
+  const [renaming, setRenaming] = useState(false)
 
   return (
     <div className="entity-form">
@@ -103,6 +106,9 @@ export function CreatureForm({ projectId, creature, chapters, onProjectChange, o
 
         <div className="entity-form-actions">
           <SaveBadge status={status} />
+          <button className="icon-btn is-neutral" onClick={() => setRenaming(true)} title="Cambiar el nombre en toda la historia">
+            <Replace size={16} />
+          </button>
           <button className="icon-btn" onClick={onDelete} title="Eliminar criatura">
             <Trash2 size={16} />
           </button>
@@ -125,6 +131,20 @@ export function CreatureForm({ projectId, creature, chapters, onProjectChange, o
           </label>
         ))}
       </div>
+
+      {renaming && (
+        <RenameDialog
+          projectId={projectId}
+          entity={{ name: creature.name, aliases: draft.aliases }}
+          onClose={() => setRenaming(false)}
+          onRenamed={(project, card) => {
+            onProjectChange(project)
+            update('name', card.name)
+            update('aliases', card.aliases)
+            void flush()
+          }}
+        />
+      )}
     </div>
   )
 }

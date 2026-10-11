@@ -396,8 +396,8 @@ export class ProjectRepository {
     const project = await this.getProject(projectId)
     const results: ChapterSearchResult[] = []
     for (const chapter of project.chapters) {
-      const { matches } = findInDoc(await this.getChapterContent(projectId, chapter.id), pattern)
-      if (matches.length > 0) results.push({ chapterId: chapter.id, title: chapter.title, matches })
+      const { matches, total } = findInDoc(await this.getChapterContent(projectId, chapter.id), pattern)
+      if (total > 0) results.push({ chapterId: chapter.id, title: chapter.title, matches, total })
     }
     return results
   }

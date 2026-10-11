@@ -41,7 +41,7 @@ export function SearchDialog({ projectId, onClose, onOpenChapter, onReplaced }: 
     return () => clearTimeout(timer)
   }, [projectId, query, options])
 
-  const total = results?.reduce((sum, r) => sum + r.matches.length, 0) ?? 0
+  const total = results?.reduce((sum, r) => sum + r.total, 0) ?? 0
 
   const replaceAll = async () => {
     try {
@@ -113,7 +113,7 @@ export function SearchDialog({ projectId, onClose, onOpenChapter, onReplaced }: 
               {results.map((r) => (
                 <section key={r.chapterId} className="search-chapter">
                   <h4>
-                    {r.title} <span className="faint">({r.matches.length})</span>
+                    {r.title} <span className="faint">({r.total})</span>
                   </h4>
                   {r.matches.map((m, i) => (
                     <button
