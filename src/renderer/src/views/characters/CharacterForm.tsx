@@ -2,7 +2,8 @@
  * Ficha editable de un personaje. Se guarda sola mientras se escribe.
  * Debe montarse con `key={character.id}`.
  */
-import { Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { Replace, Trash2 } from 'lucide-react'
 import { CHARACTER_ROLES, type ChapterMeta, type Character, type Id, type Lineage, type Project, type Race } from '@shared/types'
 import { AppearancesPanel } from '@renderer/components/AppearancesPanel'
 import { ColorPicker } from '@renderer/components/ColorPicker'
@@ -12,6 +13,7 @@ import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { initials } from '@renderer/lib/covers'
 import { CHARACTER_COLORS, ROLE_LABELS } from './characterOptions'
+import { RenameDialog } from '@renderer/components/RenameDialog'
 
 interface CharacterFormProps {
   projectId: Id
@@ -37,7 +39,8 @@ const TEXT_SECTIONS: { key: TextField; label: string; hint: string }[] = [
 ]
 
 export function CharacterForm({ projectId, character, chapters, races, lineages, onProjectChange, onDelete, onOpenChapter }: CharacterFormProps) {
-  const { draft, update, setImage, status } = useEntityForm(projectId, 'characters', character, onProjectChange)
+  const { draft, update, setImage, flush, status } = useEntityForm(projectId, 'characters', character, onProjectChange)
+  const [renaming, setRenaming] = useState(false)
 
   return (
     <div className="entity-form">
@@ -46,6 +49,8 @@ export function CharacterForm({ projectId, character, chapters, races, lineages,
           projectId={projectId}
           image={draft.image}
           onChange={setImage}
+          fullImage={draft.fullImage}
+          onFullImageChange={(file) => update('fullImage', file)}
           variant="portrait"
           color={draft.color}
           fallback={initials(draft.name)}
@@ -142,6 +147,9 @@ export function CharacterForm({ projectId, character, chapters, races, lineages,
 
         <div className="entity-form-actions">
           <SaveBadge status={status} />
+          <button className="icon-btn is-neutral" onClick={() => setRenaming(true)} title="Cambiar el nombre en toda la historia">
+            <Replace size={16} />
+          </button>
           <button className="icon-btn" onClick={onDelete} title="Eliminar personaje">
             <Trash2 size={16} />
           </button>
@@ -164,6 +172,20 @@ export function CharacterForm({ projectId, character, chapters, races, lineages,
           </label>
         ))}
       </div>
+
+      {renaming && (
+        <RenameDialog
+          projectId={projectId}
+          entity={{ name: character.name, aliases: draft.aliases }}
+          onClose={() => setRenaming(false)}
+          onRenamed={(project, card) => {
+            onProjectChange(project)
+            update('name', card.name)
+            update('aliases', card.aliases)
+            void flush()
+          }}
+        />
+      )}
     </div>
   )
 }

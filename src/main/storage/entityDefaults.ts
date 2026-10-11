@@ -26,7 +26,8 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     color: '#5b8cff',
     raceId: null,
     lineageId: null,
-    image: ''
+    image: '',
+    fullImage: ''
   },
   lore: { title: '', aliases: [], category: 'otro', categoryCustom: '', summary: '', body: '', tags: [], image: '' },
   creatures: {

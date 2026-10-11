@@ -106,8 +106,10 @@ export interface Character {
   raceId: Id | null
   /** Linaje, casa o clan (ficha de `lineages`) o null. */
   lineageId: Id | null
-  /** Retrato: nombre de archivo dentro de `assets/` ('' = sin imagen). */
+  /** Retrato (recortado, para la miniatura): nombre de archivo dentro de `assets/` ('' = sin imagen). */
   image: AssetFileName
+  /** La imagen original sin recortar, la que se ve al abrirla ('' = la misma que `image`). */
+  fullImage: AssetFileName
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
 }
@@ -655,7 +657,10 @@ export interface SearchMatch {
 export interface ChapterSearchResult {
   chapterId: Id
   title: string
+  /** Coincidencias con su contexto (como mucho 50 por capítulo). */
   matches: SearchMatch[]
+  /** Número total de coincidencias en el capítulo (aunque `matches` esté recortado). */
+  total: number
 }
 
 /* -------------------------------------------------------------------------- */

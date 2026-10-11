@@ -67,7 +67,7 @@ const MIGRATIONS: Record<number, (project: RawProject) => RawProject> = {
    * v4 -> v5: opción "Otro" con texto propio (`roleCustom` en personajes,
    * `categoryCustom` en lore, `typeCustom` en criaturas), rol "terciario" y
    * color propio en las relaciones y grupos en el mapa de relaciones
-   * (`relationGroups`) e imagen original de las criaturas (`fullImage`).
+   * (`relationGroups`) e imagen original de personajes y criaturas (`fullImage`).
    * Los campos nuevos los rellena
    * `withDefaults` al leer.
    */

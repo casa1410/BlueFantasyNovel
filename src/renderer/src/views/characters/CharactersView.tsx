@@ -42,7 +42,8 @@ export function CharactersView({ project, onProjectChange, onOpenChapter }: Char
         color: CHARACTER_COLORS[project.characters.length % CHARACTER_COLORS.length],
         raceId: null,
         lineageId: null,
-        image: ''
+        image: '',
+        fullImage: ''
       })}
       renderListItem={(c) => (
         <>
