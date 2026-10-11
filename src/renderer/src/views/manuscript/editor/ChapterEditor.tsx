@@ -4,6 +4,7 @@
  * - Guarda solo (800 ms después de dejar de escribir), al cambiar de
  *   capítulo, al pulsar Ctrl+S y al cerrar la aplicación.
  * - Cuenta palabras en vivo.
+ * - Ctrl+F: buscar y reemplazar dentro del capítulo (ver FindBar.tsx).
  * - Resalta muletillas y menciones (nombres de fichas); al pasar el ratón
  *   por una mención muestra su ficha.
  * - Panel de referencia con comentarios al margen, historial de versiones,
@@ -24,6 +25,8 @@ import { useDebouncedSave } from '@renderer/hooks/useDebouncedSave'
 import { useLocalPreference } from '@renderer/hooks/useLocalPreference'
 import { CommentMark } from './CommentMark'
 import { EditorToolbar } from './EditorToolbar'
+import { FindBar } from './FindBar'
+import { FindInChapter } from './FindInChapter'
 import { FillerWords } from './FillerWords'
 import { MentionHoverCard, type HoveredMention } from './MentionHoverCard'
 import { Mentions } from './Mentions'
@@ -59,6 +62,8 @@ export function ChapterEditor(props: ChapterEditorProps) {
   const [activeCommentId, setActiveCommentId] = useState<Id | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const [selectedText, setSelectedText] = useState('')
+  /** Barra de Ctrl+F: abierta o no, texto inicial y "pulsación" para volver a darle el foco. */
+  const [find, setFind] = useState<{ query: string; nonce: number } | null>(null)
   // Preferencias de vista que se recuerdan entre sesiones.
   const [showReference, setShowReference] = useLocalPreference('editor.showReference', true)
   const [showFillers, setShowFillers] = useLocalPreference('editor.showFillers', false)
@@ -78,7 +83,8 @@ export function ChapterEditor(props: ChapterEditorProps) {
       Placeholder.configure({ placeholder: 'Érase una vez…' }),
       FillerWords,
       Mentions,
-      CommentMark
+      CommentMark,
+      FindInChapter
     ],
     content: props.initialDoc,
     autofocus: 'end',
@@ -111,6 +117,14 @@ export function ChapterEditor(props: ChapterEditorProps) {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
         event.preventDefault()
         void flush()
+      }
+      // Ctrl+F (sin Mayús: Ctrl+Mayús+F busca en todo el manuscrito).
+      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === 'f') {
+        event.preventDefault()
+        const selection = window.getSelection()?.toString().trim() ?? ''
+        // Solo una línea corta sirve como búsqueda; un párrafo entero, no.
+        const query = selection.length <= 80 && !selection.includes('\n') ? selection : ''
+        setFind((current) => ({ query, nonce: (current?.nonce ?? 0) + 1 }))
       }
       if (event.key === 'F11') {
         event.preventDefault()
@@ -178,6 +192,8 @@ export function ChapterEditor(props: ChapterEditorProps) {
       <EditorToolbar
         editor={editor}
         projectId={project.id}
+        chapter={chapter}
+        chapters={project.chapters}
         showFillers={showFillers}
         onToggleFillers={() => setShowFillers(!showFillers)}
         showMentions={showMentions}
@@ -199,6 +215,15 @@ export function ChapterEditor(props: ChapterEditorProps) {
       />
 
       <div className="editor-body">
+        {find && editor && (
+          <FindBar
+            editor={editor}
+            initialQuery={find.query}
+            focusNonce={find.nonce}
+            onClose={() => setFind(null)}
+            style={{ right: showReference && !focusMode ? 'calc(var(--reference-width) + 20px)' : 20 }}
+          />
+        )}
         <div
           ref={scrollRef}
           className="editor-scroll"

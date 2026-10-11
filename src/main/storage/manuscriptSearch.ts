@@ -5,20 +5,15 @@
  * formato. Una frase que cambie de formato a mitad ("la **torre** de cristal")
  * no se encuentra como un todo; sí se encuentra cada parte por separado.
  */
-import type { RichTextNode, SearchMatch, SearchOptions } from '@shared/types'
+import type { RichTextNode, SearchMatch } from '@shared/types'
+import { buildSearchPattern } from '@shared/search'
+
+export { buildSearchPattern }
 
 /** Caracteres de contexto que se muestran a cada lado de una coincidencia. */
 const CONTEXT = 40
 /** Máximo de coincidencias que se devuelven por capítulo (el resto solo se cuenta). */
 const MAX_MATCHES_PER_CHAPTER = 50
-
-export function buildSearchPattern(query: string, options: SearchOptions): RegExp | null {
-  const trimmed = query.trim()
-  if (!trimmed) return null
-  let source = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  if (options.wholeWord) source = `(?<![\\p{L}\\p{N}])${source}(?![\\p{L}\\p{N}])`
-  return new RegExp(source, options.caseSensitive ? 'gu' : 'giu')
-}
 
 /** Recorre los nodos de texto de un documento. */
 function forEachTextNode(node: RichTextNode, visit: (node: RichTextNode) => void): void {
