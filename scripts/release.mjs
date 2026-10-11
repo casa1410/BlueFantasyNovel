@@ -6,6 +6,7 @@
  *   npm run release -- major        → 0.5.0 → 1.0.0
  *   npm run release -- 0.7.2        → versión exacta
  *   npm run release -- --dry-run    → solo muestra lo que haría, sin cambiar nada
+ *   npm run release -- --clean      → solo hace la limpieza del paso 6
  *
  * Pasos:
  *  1. Comprueba que no haya cambios sin guardar en git y que `gh` tenga sesión.
@@ -14,11 +15,14 @@
  *  4. Crea el commit "Versión X" y la etiqueta vX, y los sube a GitHub.
  *  5. Crea la Release con el instalador y la versión portable adjuntos y, como
  *     notas, los mensajes de los commits desde la versión anterior.
+ *  6. Limpia la carpeta release/: deja los .exe de esta versión y de la
+ *     anterior (siguen todos en GitHub) y borra win-unpacked/, una copia
+ *     intermedia de ~400 MB que se vuelve a generar en cada versión.
  *
  * Requisitos: git y GitHub CLI (`gh`) con la sesión iniciada (`gh auth login`).
  */
 import { execFileSync, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync, mkdtempSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdtempSync, readdirSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -26,12 +30,66 @@ import { fileURLToPath } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
 const dryRun = args.includes('--dry-run')
+const cleanOnly = args.includes('--clean')
 const requested = args.find((a) => !a.startsWith('--')) ?? 'patch'
 
 const log = (message) => console.log(`\n▸ ${message}`)
 const fail = (message) => {
   console.error(`\n✖ ${message}`)
   process.exit(1)
+}
+
+const releaseDir = path.join(root, 'release')
+/** Versiones de instaladores que se conservan en release/ (la nueva y la anterior). */
+const KEEP_VERSIONS = 2
+const INSTALLER = /^BlueFantasyNovel-(?:Setup|Portable)-(\d+)\.(\d+)\.(\d+)\.exe(?:\.blockmap)?$/
+
+/** Tamaño en disco de un archivo o carpeta. */
+function sizeOf(target) {
+  const stat = statSync(target)
+  if (!stat.isDirectory()) return stat.size
+  return readdirSync(target).reduce((sum, name) => sum + sizeOf(path.join(target, name)), 0)
+}
+
+/**
+ * Deja en release/ solo los instaladores y portables de las KEEP_VERSIONS
+ * versiones más recientes y borra win-unpacked/. Con `simulate`, solo lo cuenta.
+ */
+function cleanReleaseFolder(simulate) {
+  if (!existsSync(releaseDir)) return
+  const files = readdirSync(releaseDir)
+  const versionOf = (name) => {
+    const m = INSTALLER.exec(name)
+    return m ? m.slice(1, 4).map(Number) : null
+  }
+  const compare = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2]
+  const versions = [...new Set(files.map(versionOf).filter(Boolean).map((v) => v.join('.')))]
+    .map((v) => v.split('.').map(Number))
+    .sort(compare)
+    .reverse()
+  const keep = new Set(versions.slice(0, KEEP_VERSIONS).map((v) => v.join('.')))
+
+  const remove = files.filter((name) => {
+    const v = versionOf(name)
+    return v && !keep.has(v.join('.'))
+  })
+  if (files.includes('win-unpacked')) remove.push('win-unpacked')
+  if (remove.length === 0) return console.log('  No hay nada que borrar.')
+
+  let freed = 0
+  for (const name of remove) {
+    const target = path.join(releaseDir, name)
+    freed += sizeOf(target)
+    console.log(`  ${simulate ? 'Se borraría' : 'Borrado'}: ${name}`)
+    if (!simulate) rmSync(target, { recursive: true, force: true })
+  }
+  console.log(`  ${simulate ? 'Se liberarían' : 'Liberados'} ${(freed / 1024 / 1024).toFixed(0)} MB. Se conservan: ${[...keep].join(' y ') || 'ninguna'}.`)
+}
+
+if (cleanOnly) {
+  log('Limpiando release/')
+  cleanReleaseFolder(false)
+  process.exit(0)
 }
 
 /** Ejecuta un comando y devuelve su salida (lanza si falla). */
@@ -84,6 +142,8 @@ console.log(`Versión actual: ${pkg.version}  →  nueva: ${version}`)
 console.log(changes.length ? `Cambios desde ${previousTag || 'el inicio'}:\n  - ${changes.join('\n  - ')}` : 'Sin commits nuevos desde la última versión.')
 
 if (dryRun) {
+  log('Limpieza de release/ que se haría después de publicar')
+  cleanReleaseFolder(true)
   console.log('\n(--dry-run: no se ha cambiado nada)')
   process.exit(0)
 }
@@ -136,5 +196,9 @@ Tus historias están en \`Documentos\\BlueFantasyNovel\`: actualizar el programa
 const notesFile = path.join(mkdtempSync(path.join(tmpdir(), 'bfn-release-')), 'notas.md')
 writeFileSync(notesFile, notes)
 run('gh', ['release', 'create', tag, setup, portable, '--title', `BlueFantasyNovel ${version}`, '--notes-file', notesFile])
+
+// ---------------------------------------------------------------- 6. Limpieza
+log('Limpiando release/ (los instaladores antiguos siguen en GitHub)')
+cleanReleaseFolder(false)
 
 console.log(`\n✔ Publicada la versión ${version}`)
