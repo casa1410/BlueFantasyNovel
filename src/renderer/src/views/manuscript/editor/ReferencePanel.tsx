@@ -26,6 +26,7 @@ import {
   type LucideIcon
 } from 'lucide-react'
 import type { Id, MarginComment, Project } from '@shared/types'
+import { sheetEntries, type SheetCollection } from '@shared/sheets'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
@@ -69,12 +70,7 @@ const TABS: TabDefinition[] = [
         thumb: <EntityThumb projectId={project.id} image={c.image} color={c.color} fallback={initials(c.name)} />,
         details: [
           { label: 'Edad', value: c.age },
-          { label: 'Apariencia', value: c.appearance },
-          { label: 'Personalidad', value: c.personality },
-          { label: 'Motivación', value: c.motivation },
-          { label: 'Miedos', value: c.fears },
-          { label: 'Arco', value: c.arc },
-          { label: 'Notas', value: c.notes }
+          ...sheetDetails(project, 'characters', c)
         ]
       }))
   },
@@ -90,7 +86,7 @@ const TABS: TabDefinition[] = [
         thumb: <EntityThumb projectId={project.id} image={l.image} color={l.color} shape="rounded" fallback={<Crown size={16} />} />,
         details: [
           { label: 'Miembros', value: project.characters.filter((c) => c.lineageId === l.id).map((c) => c.name).join(', ') },
-          { label: 'Historia', value: l.description }
+          ...sheetDetails(project, 'lineages', l)
         ]
       }))
   },
@@ -105,10 +101,8 @@ const TABS: TabDefinition[] = [
         subtitle: r.lifespan || 'Raza',
         thumb: <EntityThumb projectId={project.id} image={r.image} color={r.color} shape="rounded" fallback={initials(r.name)} />,
         details: [
-          { label: 'Apariencia', value: r.appearance },
           { label: 'Dónde viven', value: r.homeland },
-          { label: 'Cultura', value: r.culture },
-          { label: 'Habilidades', value: r.abilities }
+          ...sheetDetails(project, 'races', r)
         ]
       }))
   },
@@ -158,10 +152,7 @@ const TABS: TabDefinition[] = [
         details: [
           { label: 'Hábitat', value: c.habitat },
           { label: 'Tamaño', value: c.size },
-          { label: 'Apariencia', value: c.appearance },
-          { label: 'Comportamiento', value: c.behavior },
-          { label: 'Habilidades', value: c.abilities },
-          { label: 'Debilidades', value: c.weaknesses }
+          ...sheetDetails(project, 'creatures', c)
         ]
       }))
   }
@@ -388,4 +379,9 @@ function CommentCard(props: ReferencePanelProps & { comment: MarginComment }) {
       </div>
     </div>
   )
+}
+
+/** Cuadros visibles de una ficha (según la plantilla de la historia), para el detalle. */
+function sheetDetails(project: Project, collection: SheetCollection, entity: Parameters<typeof sheetEntries>[2]) {
+  return sheetEntries(project.sheetTemplates, collection, entity).map(({ field, value }) => ({ label: field.label, value }))
 }

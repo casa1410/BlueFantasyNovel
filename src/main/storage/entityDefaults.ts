@@ -27,7 +27,8 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     raceId: null,
     lineageId: null,
     image: '',
-    fullImage: ''
+    fullImage: '',
+    extra: {}
   },
   lore: { title: '', aliases: [], category: 'otro', categoryCustom: '', summary: '', body: '', tags: [], image: '' },
   creatures: {
@@ -44,7 +45,8 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     weaknesses: '',
     notes: '',
     image: '',
-    fullImage: ''
+    fullImage: '',
+    extra: {}
   },
   relationships: { sourceId: '', targetId: '', kind: 'otro', label: '', color: '', notes: '' },
   relationGroups: { name: '', color: '#4fd1a5', memberIds: [], notes: '' },
@@ -71,10 +73,11 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
     abilities: '',
     notes: '',
     color: '#4fd1a5',
-    image: ''
+    image: '',
+    extra: {}
   },
   glossary: { term: '', aliases: [], definition: '', category: '' },
-  lineages: { name: '', aliases: [], motto: '', description: '', seatLoreId: null, color: '#e8c46a', image: '' },
+  lineages: { name: '', aliases: [], motto: '', description: '', seatLoreId: null, color: '#e8c46a', image: '', extra: {} },
   plotlines: { name: '', description: '', color: '#5b8cff', beats: {} },
   comments: { chapterId: '', quote: '', text: '', resolved: false }
 }

@@ -5,6 +5,7 @@
 import { createPortal } from 'react-dom'
 import { BookA, Crown } from 'lucide-react'
 import type { Id, MentionableCollection, Project } from '@shared/types'
+import { sheetEntries, type SheetCollection } from '@shared/sheets'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { initials } from '@renderer/lib/covers'
 import { DANGER_LABELS, creatureTypeLabel } from '../../bestiary/bestiaryOptions'
@@ -61,9 +62,7 @@ function describe(project: Project, { kind, id }: HoveredMention) {
       subtitle: [characterRoleLabel(c), c.age && `${c.age} años`].filter(Boolean).join(' · '),
       thumb: <EntityThumb projectId={project.id} image={c.image} color={c.color} fallback={initials(c.name)} size={40} />,
       lines: lines([
-        ['Apariencia', c.appearance],
-        ['Personalidad', c.personality],
-        ['Motivación', c.motivation]
+        ...firstSheetLines(project, 'characters', c)
       ])
     }
   }
@@ -88,9 +87,7 @@ function describe(project: Project, { kind, id }: HoveredMention) {
       subtitle: ['Raza', r.lifespan].filter(Boolean).join(' · '),
       thumb: <EntityThumb projectId={project.id} image={r.image} color={r.color} shape="rounded" size={40} fallback={initials(r.name)} />,
       lines: lines([
-        ['Apariencia', r.appearance],
-        ['Cultura', r.culture],
-        ['Habilidades', r.abilities]
+        ...firstSheetLines(project, 'races', r)
       ])
     }
   }
@@ -104,7 +101,7 @@ function describe(project: Project, { kind, id }: HoveredMention) {
       thumb: <EntityThumb projectId={project.id} image={l.image} color={l.color} shape="rounded" size={40} fallback={<Crown size={18} />} />,
       lines: lines([
         ['Miembros', members.join(', ')],
-        ['Historia', l.description]
+        ...firstSheetLines(project, 'lineages', l)
       ])
     }
   }
@@ -126,8 +123,15 @@ function describe(project: Project, { kind, id }: HoveredMention) {
     thumb: <EntityThumb projectId={project.id} image={c.image} shape="rounded" size={40} fallback={initials(c.name)} />,
     lines: lines([
       ['Hábitat', c.habitat],
-      ['Habilidades', c.abilities],
-      ['Debilidades', c.weaknesses]
+      ...firstSheetLines(project, 'creatures', c)
     ])
   }
+}
+
+/** Los tres primeros cuadros visibles con texto (según la plantilla de la historia). */
+function firstSheetLines(project: Project, collection: SheetCollection, entity: Parameters<typeof sheetEntries>[2]): [string, string][] {
+  return sheetEntries(project.sheetTemplates, collection, entity)
+    .filter(({ value }) => value.trim())
+    .slice(0, 3)
+    .map(({ field, value }) => [field.label, value])
 }

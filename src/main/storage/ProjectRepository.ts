@@ -32,6 +32,7 @@ import { assertValidAssetRefs, collectAssetRefs } from '@shared/assetRefs'
 import { IMAGE_EXTENSIONS, isValidAssetFileName } from '@shared/assets'
 import { DEFAULT_CALENDAR } from '@shared/calendar'
 import { defaultCover } from '@shared/cover'
+import { SHEET_COLLECTIONS, completeSheetTemplates, defaultSheetTemplates, isCustomField, type SheetTemplates } from '@shared/sheets'
 import { computeScenes, manuscriptChapters, manuscriptWordCount } from '@shared/manuscript'
 import { createMentionMatcher, mentionTargets } from '@shared/mentions'
 import {
@@ -160,7 +161,8 @@ export class ProjectRepository {
       lineages: [],
       plotlines: [],
       comments: [],
-      cover: defaultCover(input.title.trim())
+      cover: defaultCover(input.title.trim()),
+      sheetTemplates: defaultSheetTemplates()
     }
     await this.writeProject(project)
 
@@ -206,6 +208,7 @@ export class ProjectRepository {
         }
       }
       if (patch.relationLayout !== undefined) project.relationLayout = patch.relationLayout
+      if (patch.sheetTemplates !== undefined) applySheetTemplates(project, completeSheetTemplates(patch.sheetTemplates))
       if (patch.cover !== undefined) {
         const before = collectAssetRefs(project.cover)
         project.cover = { ...project.cover, ...patch.cover }
@@ -214,6 +217,15 @@ export class ProjectRepository {
       return project
     })
     await Promise.all(unused.map((file) => this.deleteAsset(projectId, file)))
+    // Las fichas del mundo se comparten en la saga: sus cuadros también.
+    if (patch.sheetTemplates !== undefined) {
+      for (const otherId of await this.sagaPartners(projectId)) {
+        await this.mutate(otherId, (q) => {
+          applySheetTemplates(q, updated.sheetTemplates)
+          return q
+        })
+      }
+    }
     return updated
   }
 
@@ -974,6 +986,20 @@ function sanitizeList<C extends 'relationships' | 'relationGroups'>(list: unknow
 function sameEntity(a: object, b: object): boolean {
   const strip = ({ createdAt: _c, updatedAt: _u, ...rest }: Record<string, unknown>) => rest
   return JSON.stringify(strip(a as Record<string, unknown>)) === JSON.stringify(strip(b as Record<string, unknown>))
+}
+
+/**
+ * Pone las plantillas de cuadros y borra el texto de los cuadros añadidos
+ * que ya no existen (al borrar un cuadro se borra su texto en todas las fichas).
+ */
+function applySheetTemplates(project: Project, templates: SheetTemplates): void {
+  for (const collection of SHEET_COLLECTIONS) {
+    const kept = new Set(templates[collection].map((f) => f.id))
+    for (const entity of project[collection]) {
+      for (const id of Object.keys(entity.extra ?? {})) if (isCustomField(id) && !kept.has(id)) delete entity.extra[id]
+    }
+  }
+  project.sheetTemplates = templates
 }
 
 function removeReferences(project: Project, collection: EntityCollection, id: Id): void {

@@ -7,7 +7,9 @@
  * `src/main/storage/migrations.ts`.
  */
 
-export const CURRENT_SCHEMA_VERSION = 5
+import type { SheetTemplates } from './sheets'
+
+export const CURRENT_SCHEMA_VERSION = 6
 
 /** Identificador único (UUID v4). */
 export type Id = string
@@ -110,6 +112,8 @@ export interface Character {
   image: AssetFileName
   /** La imagen original sin recortar, la que se ve al abrirla ('' = la misma que `image`). */
   fullImage: AssetFileName
+  /** Texto de los cuadros añadidos por el usuario (id del cuadro → texto). Ver shared/sheets.ts. */
+  extra: Record<string, string>
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
 }
@@ -191,6 +195,8 @@ export interface Creature {
   image: AssetFileName
   /** La ilustración original sin recortar, la que se ve al abrirla ('' = la misma que `image`). */
   fullImage: AssetFileName
+  /** Texto de los cuadros añadidos por el usuario (id del cuadro → texto). Ver shared/sheets.ts. */
+  extra: Record<string, string>
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
 }
@@ -213,6 +219,8 @@ export interface Race {
   notes: string
   color: string
   image: AssetFileName
+  /** Texto de los cuadros añadidos por el usuario (id del cuadro → texto). Ver shared/sheets.ts. */
+  extra: Record<string, string>
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
 }
@@ -241,6 +249,8 @@ export interface Lineage {
   color: string
   /** Emblema o escudo. */
   image: AssetFileName
+  /** Texto de los cuadros añadidos por el usuario (id del cuadro → texto). Ver shared/sheets.ts. */
+  extra: Record<string, string>
   createdAt: IsoDateTime
   updatedAt: IsoDateTime
 }
@@ -542,6 +552,8 @@ export interface Project {
   plotlines: Plotline[]
   comments: MarginComment[]
   cover: CoverDesign
+  /** Cuadros de texto de las fichas: cuáles se ven, en qué orden y con qué nombre. */
+  sheetTemplates: SheetTemplates
 }
 
 /* -------------------------------------------------------------------------- */
@@ -604,7 +616,7 @@ export interface Saga {
 
 /** Campos editables de un proyecto desde la interfaz. */
 export type ProjectPatch = Partial<
-  Pick<Project, 'title' | 'description' | 'genre' | 'wordGoal' | 'dailyGoal' | 'calendar' | 'relationLayout' | 'cover'>
+  Pick<Project, 'title' | 'description' | 'genre' | 'wordGoal' | 'dailyGoal' | 'calendar' | 'relationLayout' | 'cover' | 'sheetTemplates'>
 >
 
 /** Datos para crear un proyecto nuevo. */

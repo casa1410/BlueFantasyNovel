@@ -10,6 +10,7 @@ import { EntityBrowser } from '@renderer/components/EntityBrowser'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
+import { SheetSections } from '@renderer/components/SheetSections'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { plural } from '@renderer/lib/format'
@@ -40,7 +41,8 @@ export function LineagesView({ project, onProjectChange, onOpenChapter }: Lineag
         description: '',
         seatLoreId: null,
         color: CHARACTER_COLORS[(project.lineages.length + 3) % CHARACTER_COLORS.length],
-        image: ''
+        image: '',
+        extra: {}
       })}
       renderListItem={(l) => (
         <>
@@ -112,15 +114,13 @@ function LineageForm({ project, lineage, onProjectChange, onDelete, onOpenChapte
       <MemberChips title="Miembros" members={members} empty="Asigna el linaje desde la ficha de cada personaje." />
       <AppearancesPanel projectId={project.id} entityId={lineage.id} chapters={project.chapters} onOpenChapter={onOpenChapter} />
 
-      <label className="field">
-        <span className="field-label">Historia del linaje</span>
-        <textarea
-          className="textarea lore-body"
-          value={draft.description}
-          onChange={(e) => update('description', e.target.value)}
-          placeholder="Origen, alianzas, enemistades, momentos de gloria y de caída…"
-        />
-      </label>
+      <SheetSections
+        project={project}
+        collection="lineages"
+        draft={draft}
+        onChange={update as (key: string, value: unknown) => void}
+        onProjectChange={onProjectChange}
+      />
     </div>
   )
 }

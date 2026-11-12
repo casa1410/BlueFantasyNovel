@@ -43,7 +43,8 @@ export function CharactersView({ project, onProjectChange, onOpenChapter }: Char
         raceId: null,
         lineageId: null,
         image: '',
-        fullImage: ''
+        fullImage: '',
+        extra: {}
       })}
       renderListItem={(c) => (
         <>
@@ -57,6 +58,7 @@ export function CharactersView({ project, onProjectChange, onOpenChapter }: Char
       renderDetail={(c, { onDelete }) => (
         <CharacterForm
           key={c.id}
+          project={project}
           projectId={project.id}
           character={c}
           chapters={project.chapters}

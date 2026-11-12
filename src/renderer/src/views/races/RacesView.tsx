@@ -9,6 +9,7 @@ import { EntityBrowser } from '@renderer/components/EntityBrowser'
 import { EntityThumb } from '@renderer/components/EntityThumb'
 import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
+import { SheetSections } from '@renderer/components/SheetSections'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { initials } from '@renderer/lib/covers'
@@ -42,7 +43,8 @@ export function RacesView({ project, onProjectChange, onOpenChapter }: RacesView
         abilities: '',
         notes: '',
         color: CHARACTER_COLORS[(project.races.length + 4) % CHARACTER_COLORS.length],
-        image: ''
+        image: '',
+        extra: {}
       })}
       renderListItem={(r) => (
         <>
@@ -65,14 +67,6 @@ export function RacesView({ project, onProjectChange, onOpenChapter }: RacesView
     />
   )
 }
-
-type TextField = 'appearance' | 'culture' | 'abilities' | 'notes'
-const TEXT_SECTIONS: { key: TextField; label: string; hint: string }[] = [
-  { key: 'appearance', label: 'Apariencia', hint: 'Rasgos físicos, altura, color de piel, ojos…' },
-  { key: 'culture', label: 'Cultura y sociedad', hint: 'Costumbres, gobierno, creencias, relación con otros pueblos.' },
-  { key: 'abilities', label: 'Habilidades', hint: 'Dones, magia innata, debilidades.' },
-  { key: 'notes', label: 'Notas', hint: 'Historia, idioma, secretos…' }
-]
 
 interface RaceFormProps {
   project: Project
@@ -114,14 +108,13 @@ function RaceForm({ project, race, onProjectChange, onDelete, onOpenChapter }: R
       <MemberChips title="Personajes de esta raza" members={members} empty="Asigna la raza desde la ficha de cada personaje." />
       <AppearancesPanel projectId={project.id} entityId={race.id} chapters={project.chapters} onOpenChapter={onOpenChapter} />
 
-      <div className="entity-sections">
-        {TEXT_SECTIONS.map(({ key, label, hint }) => (
-          <label key={key} className="field">
-            <span className="field-label">{label}</span>
-            <textarea className="textarea" rows={4} value={draft[key]} onChange={(e) => update(key, e.target.value)} placeholder={hint} />
-          </label>
-        ))}
-      </div>
+      <SheetSections
+        project={project}
+        collection="races"
+        draft={draft}
+        onChange={update as (key: string, value: unknown) => void}
+        onProjectChange={onProjectChange}
+      />
     </div>
   )
 }

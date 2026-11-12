@@ -511,3 +511,97 @@
 .appearance-chip.is-static:hover {
   border-color: var(--border);
 }
+
+/* ------------------------------------------------------------------------ */
+/* Cuadros de texto configurables                                           */
+/* ------------------------------------------------------------------------ */
+
+.sheet-sections-header {
+  display: flex;
+  justify-content: flex-end;
+  margin: 8px 0 -8px;
+}
+.sheet-template-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+.sheet-template-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 200px auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.sheet-template-row.is-hidden .sheet-template-fields {
+  opacity: 0.5;
+}
+.sheet-template-move {
+  display: flex;
+  flex-direction: column;
+}
+.sheet-template-move .icon-btn {
+  width: 24px;
+  height: 22px;
+}
+.sheet-template-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sheet-template-fields .input {
+  padding: 5px 9px;
+}
+.sheet-template-hint {
+  font-size: 12px;
+}
+.sheet-template-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sheet-template-wide {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.sheet-template-delete:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+.sheet-template-confirm {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  font-size: 13px;
+}
+.sheet-template-confirm span {
+  flex: 1;
+}
+.sheet-template-add {
+  display: flex;
+  gap: 8px;
+}
+.sheet-template-add .input {
+  flex: 1;
+}
+.sheet-template-warning {
+  margin-right: auto;
+  color: var(--danger);
+  font-size: 13px;
+}

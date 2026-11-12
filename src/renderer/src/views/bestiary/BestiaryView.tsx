@@ -46,7 +46,8 @@ export function BestiaryView({ project, onProjectChange, onOpenChapter }: Bestia
         weaknesses: '',
         notes: '',
         image: '',
-        fullImage: ''
+        fullImage: '',
+        extra: {}
       })}
       renderListItem={(c) => (
         <>
@@ -61,6 +62,7 @@ export function BestiaryView({ project, onProjectChange, onOpenChapter }: Bestia
       renderDetail={(c, { onDelete }) => (
         <CreatureForm
           key={c.id}
+          project={project}
           projectId={project.id}
           creature={c}
           chapters={project.chapters}

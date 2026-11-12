@@ -8,6 +8,7 @@
  */
 import { DEFAULT_CALENDAR } from '@shared/calendar'
 import { defaultCover } from '@shared/cover'
+import { completeSheetTemplates } from '@shared/sheets'
 import { CURRENT_SCHEMA_VERSION, type EntityCollection, type Project } from '@shared/types'
 import { withEntityDefaults } from './entityDefaults'
 
@@ -71,7 +72,12 @@ const MIGRATIONS: Record<number, (project: RawProject) => RawProject> = {
    * Los campos nuevos los rellena
    * `withDefaults` al leer.
    */
-  4: (p) => ({ ...p, schemaVersion: 5 })
+  4: (p) => ({ ...p, schemaVersion: 5 }),
+  /**
+   * v5 -> v6: cuadros de texto configurables en personajes, criaturas, razas
+   * y linajes (`sheetTemplates` y `extra`). Los rellena `withDefaults`.
+   */
+  5: (p) => ({ ...p, schemaVersion: 6 })
 }
 
 export function migrateProject(raw: RawProject): { project: Project; migrated: boolean } {
@@ -130,7 +136,8 @@ function withDefaults(raw: RawProject): Project {
     lineages: complete('lineages', p.lineages),
     plotlines: complete('plotlines', p.plotlines),
     comments: complete('comments', p.comments),
-    cover: completeCover(p.cover, p.title)
+    cover: completeCover(p.cover, p.title),
+    sheetTemplates: completeSheetTemplates(p.sheetTemplates)
   }
 }
 

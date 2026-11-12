@@ -9,6 +9,7 @@ import { AppearancesPanel } from '@renderer/components/AppearancesPanel'
 import { ColorPicker } from '@renderer/components/ColorPicker'
 import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
+import { SheetSections } from '@renderer/components/SheetSections'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
 import { initials } from '@renderer/lib/covers'
@@ -16,6 +17,7 @@ import { CHARACTER_COLORS, ROLE_LABELS } from './characterOptions'
 import { RenameDialog } from '@renderer/components/RenameDialog'
 
 interface CharacterFormProps {
+  project: Project
   projectId: Id
   character: Character
   chapters: ChapterMeta[]
@@ -26,19 +28,7 @@ interface CharacterFormProps {
   onOpenChapter: (chapterId: Id) => void
 }
 
-type TextField = 'appearance' | 'personality' | 'motivation' | 'fears' | 'arc' | 'notes'
-
-/** Campos de texto largo de la ficha, con su ayuda para el escritor. */
-const TEXT_SECTIONS: { key: TextField; label: string; hint: string }[] = [
-  { key: 'appearance', label: 'Apariencia', hint: 'Rasgos físicos, forma de vestir, gestos reconocibles.' },
-  { key: 'personality', label: 'Personalidad', hint: 'Carácter, virtudes, defectos, cómo habla.' },
-  { key: 'motivation', label: 'Motivación', hint: '¿Qué quiere? ¿Qué necesita de verdad (aunque no lo sepa)?' },
-  { key: 'fears', label: 'Miedos y heridas', hint: '¿Qué le aterra? ¿Qué pasado le pesa?' },
-  { key: 'arc', label: 'Arco narrativo', hint: 'Cómo empieza, qué le cambia y cómo termina.' },
-  { key: 'notes', label: 'Notas', hint: 'Cualquier otra cosa: relaciones, secretos, frases típicas…' }
-]
-
-export function CharacterForm({ projectId, character, chapters, races, lineages, onProjectChange, onDelete, onOpenChapter }: CharacterFormProps) {
+export function CharacterForm({ project, projectId, character, chapters, races, lineages, onProjectChange, onDelete, onOpenChapter }: CharacterFormProps) {
   const { draft, update, setImage, flush, status } = useEntityForm(projectId, 'characters', character, onProjectChange)
   const [renaming, setRenaming] = useState(false)
 
@@ -158,20 +148,13 @@ export function CharacterForm({ projectId, character, chapters, races, lineages,
 
       <AppearancesPanel projectId={projectId} entityId={character.id} chapters={chapters} onOpenChapter={onOpenChapter} />
 
-      <div className="entity-sections">
-        {TEXT_SECTIONS.map(({ key, label, hint }) => (
-          <label key={key} className="field">
-            <span className="field-label">{label}</span>
-            <textarea
-              className="textarea"
-              value={draft[key]}
-              onChange={(e) => update(key, e.target.value)}
-              placeholder={hint}
-              rows={4}
-            />
-          </label>
-        ))}
-      </div>
+      <SheetSections
+        project={project}
+        collection="characters"
+        draft={draft}
+        onChange={update as (key: string, value: unknown) => void}
+        onProjectChange={onProjectChange}
+      />
 
       {renaming && (
         <RenameDialog

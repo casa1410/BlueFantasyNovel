@@ -7,6 +7,7 @@ import { CREATURE_TYPES, type ChapterMeta, type Creature, type CreatureType, typ
 import { AppearancesPanel } from '@renderer/components/AppearancesPanel'
 import { ImagePicker } from '@renderer/components/ImagePicker'
 import { ListInput } from '@renderer/components/ListInput'
+import { SheetSections } from '@renderer/components/SheetSections'
 import { RenameDialog } from '@renderer/components/RenameDialog'
 import { SaveBadge } from '@renderer/components/SaveBadge'
 import { useEntityForm } from '@renderer/hooks/useEntityForm'
@@ -14,6 +15,7 @@ import { CREATURE_TYPE_LABELS } from './bestiaryOptions'
 import { DangerMeter } from './DangerMeter'
 
 interface CreatureFormProps {
+  project: Project
   projectId: Id
   creature: Creature
   chapters: ChapterMeta[]
@@ -22,17 +24,7 @@ interface CreatureFormProps {
   onOpenChapter: (chapterId: Id) => void
 }
 
-type TextField = 'appearance' | 'behavior' | 'abilities' | 'weaknesses' | 'notes'
-
-const TEXT_SECTIONS: { key: TextField; label: string; hint: string; wide?: boolean }[] = [
-  { key: 'appearance', label: 'Apariencia', hint: 'Forma, color, olor, sonidos que emite…' },
-  { key: 'behavior', label: 'Comportamiento', hint: '¿Caza en manada? ¿Es territorial? ¿Cuándo aparece?' },
-  { key: 'abilities', label: 'Habilidades', hint: 'Poderes, ataques, sentidos especiales.' },
-  { key: 'weaknesses', label: 'Debilidades', hint: 'Qué la hiere, qué teme, cómo evitarla.' },
-  { key: 'notes', label: 'Leyendas y notas', hint: 'Mitos, avistamientos, relación con otras especies o pueblos…', wide: true }
-]
-
-export function CreatureForm({ projectId, creature, chapters, onProjectChange, onDelete, onOpenChapter }: CreatureFormProps) {
+export function CreatureForm({ project, projectId, creature, chapters, onProjectChange, onDelete, onOpenChapter }: CreatureFormProps) {
   const { draft, update, setImage, flush, status } = useEntityForm(projectId, 'creatures', creature, onProjectChange)
   const [renaming, setRenaming] = useState(false)
 
@@ -117,20 +109,13 @@ export function CreatureForm({ projectId, creature, chapters, onProjectChange, o
 
       <AppearancesPanel projectId={projectId} entityId={creature.id} chapters={chapters} onOpenChapter={onOpenChapter} />
 
-      <div className="entity-sections">
-        {TEXT_SECTIONS.map(({ key, label, hint, wide }) => (
-          <label key={key} className={`field ${wide ? 'entity-section-wide' : ''}`}>
-            <span className="field-label">{label}</span>
-            <textarea
-              className="textarea"
-              value={draft[key]}
-              onChange={(e) => update(key, e.target.value)}
-              placeholder={hint}
-              rows={4}
-            />
-          </label>
-        ))}
-      </div>
+      <SheetSections
+        project={project}
+        collection="creatures"
+        draft={draft}
+        onChange={update as (key: string, value: unknown) => void}
+        onProjectChange={onProjectChange}
+      />
 
       {renaming && (
         <RenameDialog

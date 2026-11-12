@@ -7,6 +7,7 @@ import { AlignmentType, Document, HeadingLevel, ImageRun, Packer, Paragraph, Tex
 import { compareEvents, formatWorldDate } from '@shared/calendar'
 import { DANGER_LABELS, characterRoleLabel, creatureTypeLabel, loreCategoryLabel, relationLabel } from '@shared/labels'
 import { manuscriptChapters } from '@shared/manuscript'
+import { sheetEntries } from '@shared/sheets'
 import type { AssetFileName, Id } from '@shared/types'
 import { groupLines, loreGroups, type BibleData } from './bible'
 
@@ -55,11 +56,7 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
       image(c.image, 160)
       meta([characterRoleLabel(c), c.age && `${c.age} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages)].filter(Boolean).join(' · '))
       field('También conocido como', c.aliases.join(', '))
-      field('Apariencia', c.appearance)
-      field('Personalidad', c.personality)
-      field('Motivación', c.motivation)
-      field('Miedos y heridas', c.fears)
-      field('Arco narrativo', c.arc)
+      for (const { field: f, value } of sheetEntries(project.sheetTemplates, 'characters', c)) field(f.label, value)
       field(
         'Relaciones',
         project.relationships
@@ -68,7 +65,6 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
           .concat(groupLines(project, c.id))
           .join('\n')
       )
-      field('Notas', c.notes)
     }
   }
 
@@ -78,7 +74,7 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
       entry(l.name)
       image(l.image, 140)
       meta(l.motto && `«${l.motto}»`)
-      field('Descripción', l.description)
+      for (const { field: f, value } of sheetEntries(project.sheetTemplates, 'lineages', l)) field(f.label, value)
       field('Sede', nameOf(l.seatLoreId, project.lore))
       field('Miembros', project.characters.filter((c) => c.lineageId === l.id).map((c) => c.name).join(', '))
     }
@@ -89,12 +85,9 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
     for (const r of project.races) {
       entry(r.name)
       image(r.image, 160)
-      field('Apariencia', r.appearance)
       field('Esperanza de vida', r.lifespan)
       field('Dónde viven', r.homeland)
-      field('Cultura', r.culture)
-      field('Habilidades', r.abilities)
-      field('Notas', r.notes)
+      for (const { field: f, value } of sheetEntries(project.sheetTemplates, 'races', r)) field(f.label, value)
     }
   }
 
@@ -130,11 +123,7 @@ export async function bibleToDocx({ project, images }: BibleData): Promise<Buffe
       meta(`${creatureTypeLabel(c)} · Peligrosidad: ${DANGER_LABELS[c.danger]} (${c.danger}/5)`)
       field('Hábitat', c.habitat)
       field('Tamaño', c.size)
-      field('Apariencia', c.appearance)
-      field('Comportamiento', c.behavior)
-      field('Habilidades', c.abilities)
-      field('Debilidades', c.weaknesses)
-      field('Leyendas y notas', c.notes)
+      for (const { field: f, value } of sheetEntries(project.sheetTemplates, 'creatures', c)) field(f.label, value)
     }
   }
 

@@ -23,6 +23,7 @@ import {
 } from '@shared/labels'
 import { manuscriptChapters } from '@shared/manuscript'
 import { escapeHtml } from '@shared/richText'
+import { sheetEntries } from '@shared/sheets'
 import { LORE_CATEGORIES, type AssetFileName, type Id, type LoreEntry, type Project } from '@shared/types'
 import type { ProjectRepository } from '../storage/ProjectRepository'
 import { READING_STYLES } from './html'
@@ -121,6 +122,9 @@ export function buildBibleHtml({ project, images }: BibleData): string {
     const rows = pairs.filter(([, v]) => v && v.trim())
     return rows.length ? `<dl>${rows.map(([k, v]) => `<dt>${e(k)}</dt><dd>${e(v!)}</dd>`).join('')}</dl>` : ''
   }
+  /** Cuadros visibles de la ficha según la plantilla de la historia. */
+  const sheet = (collection: Parameters<typeof sheetEntries>[1], entity: Parameters<typeof sheetEntries>[2]): [string, string][] =>
+    sheetEntries(project.sheetTemplates, collection, entity).map(({ field, value }) => [field.label, value])
   const nameOf = (id: Id | null, list: { id: Id; name?: string; title?: string }[]) => {
     const item = list.find((x) => x.id === id)
     return item ? (item.name ?? item.title ?? '') : ''
@@ -150,15 +154,7 @@ export function buildBibleHtml({ project, images }: BibleData): string {
             <div class="meta">${[e(characterRoleLabel(c)), c.age && `${e(c.age)} años`, nameOf(c.raceId, project.races), nameOf(c.lineageId, project.lineages), c.aliases.length ? `También: ${e(c.aliases.join(', '))}` : '']
               .filter(Boolean)
               .join(' · ')}</div>
-            ${fields([
-              ['Apariencia', c.appearance],
-              ['Personalidad', c.personality],
-              ['Motivación', c.motivation],
-              ['Miedos y heridas', c.fears],
-              ['Arco narrativo', c.arc],
-              ['Relaciones', relations.join('\n')],
-              ['Notas', c.notes]
-            ])}</div></article>`
+            ${fields([...sheet('characters', c), ['Relaciones', relations.join('\n')]])}</div></article>`
         })
         .join('')
     })
@@ -174,11 +170,7 @@ export function buildBibleHtml({ project, images }: BibleData): string {
           const members = project.characters.filter((c) => c.lineageId === l.id).map((c) => c.name)
           return `<article class="entry">${img(l.image, l.name)}<div><h3>${e(l.name)}</h3>
             ${l.motto ? `<div class="meta">«${e(l.motto)}»</div>` : ''}
-            ${fields([
-              ['Descripción', l.description],
-              ['Sede', nameOf(l.seatLoreId, project.lore)],
-              ['Miembros', members.join(', ')]
-            ])}</div></article>`
+            ${fields([...sheet('lineages', l), ['Sede', nameOf(l.seatLoreId, project.lore)], ['Miembros', members.join(', ')]])}</div></article>`
         })
         .join('')
     })
@@ -193,13 +185,10 @@ export function buildBibleHtml({ project, images }: BibleData): string {
         .map(
           (r) => `<article class="entry">${img(r.image, r.name)}<div><h3>${e(r.name)}</h3>
           ${fields([
-            ['Apariencia', r.appearance],
             ['Esperanza de vida', r.lifespan],
             ['Dónde viven', r.homeland],
-            ['Cultura', r.culture],
-            ['Habilidades', r.abilities],
-            ['Personajes', project.characters.filter((c) => c.raceId === r.id).map((c) => c.name).join(', ')],
-            ['Notas', r.notes]
+            ...sheet('races', r),
+            ['Personajes', project.characters.filter((c) => c.raceId === r.id).map((c) => c.name).join(', ')]
           ])}</div></article>`
         )
         .join('')
@@ -247,15 +236,7 @@ export function buildBibleHtml({ project, images }: BibleData): string {
         .map(
           (c) => `<article class="entry">${img(c.image, c.name)}<div><h3>${e(c.name)}</h3>
           <div class="meta">${e(creatureTypeLabel(c))} · Peligrosidad: ${e(DANGER_LABELS[c.danger])} (${c.danger}/5)</div>
-          ${fields([
-            ['Hábitat', c.habitat],
-            ['Tamaño', c.size],
-            ['Apariencia', c.appearance],
-            ['Comportamiento', c.behavior],
-            ['Habilidades', c.abilities],
-            ['Debilidades', c.weaknesses],
-            ['Leyendas y notas', c.notes]
-          ])}</div></article>`
+          ${fields([['Hábitat', c.habitat], ['Tamaño', c.size], ...sheet('creatures', c)])}</div></article>`
         )
         .join('')
     })
