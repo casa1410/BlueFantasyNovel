@@ -11,6 +11,7 @@ import {
   Network,
   PawPrint,
   Route,
+  StickyNote,
   ScrollText,
   Users,
   type LucideIcon
@@ -33,6 +34,7 @@ export type WorkspaceSection =
   | 'timeline'
   | 'maps'
   | 'boards'
+  | 'notes'
 
 export interface SectionDefinition {
   id: WorkspaceSection
@@ -61,7 +63,8 @@ export const SECTION_GROUPS: SectionGroup[] = [
       { id: 'manuscript', label: 'Manuscrito', icon: Feather },
       { id: 'plots', label: 'Tramas', icon: Route, collection: 'plotlines' },
       { id: 'cover', label: 'Cubierta', icon: BookImage },
-      { id: 'stats', label: 'Estadísticas', icon: BarChart3 }
+      { id: 'stats', label: 'Estadísticas', icon: BarChart3 },
+      { id: 'notes', label: 'Notas', icon: StickyNote, collection: 'notes' }
     ]
   },
   {

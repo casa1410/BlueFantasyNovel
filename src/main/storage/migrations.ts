@@ -61,6 +61,7 @@ const MIGRATIONS: Record<number, (project: RawProject) => RawProject> = {
     glossary: [],
     lineages: [],
     plotlines: [],
+    notes: [],
     comments: [],
     cover: defaultCover(String(p.title ?? ''))
   }),
@@ -135,8 +136,9 @@ function withDefaults(raw: RawProject): Project {
     glossary: complete('glossary', p.glossary),
     lineages: complete('lineages', p.lineages),
     plotlines: complete('plotlines', p.plotlines),
+    notes: complete('notes', p.notes),
     comments: complete('comments', p.comments),
-    cover: completeCover(p.cover, p.title),
+    cover: completeCover(p.cover, String(p.title ?? '')),
     sheetTemplates: completeSheetTemplates(p.sheetTemplates)
   }
 }

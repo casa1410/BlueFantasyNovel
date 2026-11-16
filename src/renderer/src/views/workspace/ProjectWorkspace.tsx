@@ -22,6 +22,7 @@ import { SocialCardsDialog } from '../cards/SocialCardsDialog'
 import { CharactersView } from '../characters/CharactersView'
 import { CoverView } from '../cover/CoverView'
 import { GlossaryView } from '../glossary/GlossaryView'
+import { NotesView } from '../notes/NotesView'
 import { LineagesView } from '../lineages/LineagesView'
 import { LoreView } from '../lore/LoreView'
 import { ManuscriptView } from '../manuscript/ManuscriptView'
@@ -200,6 +201,7 @@ export function ProjectWorkspace({ projectId, onExit }: ProjectWorkspaceProps) {
     lineages: () => <LineagesView project={project} onProjectChange={setProject} onOpenChapter={openChapter} />,
     races: () => <RacesView project={project} onProjectChange={setProject} onOpenChapter={openChapter} />,
     glossary: () => <GlossaryView project={project} onProjectChange={setProject} onOpenChapter={openChapter} />,
+    notes: () => <NotesView project={project} onProjectChange={setProject} />,
     characters: () => <CharactersView project={project} onProjectChange={setProject} onOpenChapter={openChapter} />,
     relations: () => <RelationsView project={project} onProjectChange={setProject} />,
     lore: () => <LoreView project={project} onProjectChange={setProject} onOpenChapter={openChapter} />,

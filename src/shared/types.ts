@@ -237,6 +237,18 @@ export interface GlossaryEntry {
   updatedAt: IsoDateTime
 }
 
+/** Nota libre de la historia (ideas, pendientes, investigación…). No se comparte en la saga. */
+export interface Note {
+  id: Id
+  title: string
+  /** Texto de la nota. */
+  body: string
+  /** Categoría libre ("ideas", "pendiente", "investigación"…). */
+  category: string
+  createdAt: IsoDateTime
+  updatedAt: IsoDateTime
+}
+
 /** Linaje, casa noble, dinastía o clan. Sus miembros son personajes con `lineageId`. */
 export interface Lineage {
   id: Id
@@ -477,6 +489,7 @@ export interface EntityMap {
   lineages: Lineage
   plotlines: Plotline
   comments: MarginComment
+  notes: Note
 }
 
 export type EntityCollection = keyof EntityMap
@@ -493,7 +506,8 @@ export const ENTITY_COLLECTIONS: EntityCollection[] = [
   'glossary',
   'lineages',
   'plotlines',
-  'comments'
+  'comments',
+  'notes'
 ]
 
 /** Colecciones que pueden mencionarse en el texto del manuscrito. */
@@ -551,6 +565,8 @@ export interface Project {
   lineages: Lineage[]
   plotlines: Plotline[]
   comments: MarginComment[]
+  /** Notas libres, en el orden que elija el usuario. */
+  notes: Note[]
   cover: CoverDesign
   /** Cuadros de texto de las fichas: cuáles se ven, en qué orden y con qué nombre. */
   sheetTemplates: SheetTemplates

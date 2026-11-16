@@ -605,3 +605,29 @@
   color: var(--danger);
   font-size: 13px;
 }
+
+/* Notas */
+.note-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.note-body {
+  flex: 1;
+  min-height: 60vh;
+  margin-top: 18px;
+  padding: 16px 18px;
+  font-family: var(--editor-font);
+  font-size: 16px;
+  line-height: 1.65;
+  resize: vertical;
+}
+.note-category {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 11px;
+}

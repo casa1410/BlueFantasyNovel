@@ -79,6 +79,7 @@ export const ENTITY_DEFAULTS: { [C in EntityCollection]: EntityInput<C> } = {
   glossary: { term: '', aliases: [], definition: '', category: '' },
   lineages: { name: '', aliases: [], motto: '', description: '', seatLoreId: null, color: '#e8c46a', image: '', extra: {} },
   plotlines: { name: '', description: '', color: '#5b8cff', beats: {} },
+  notes: { title: '', body: '', category: '' },
   comments: { chapterId: '', quote: '', text: '', resolved: false }
 }
 

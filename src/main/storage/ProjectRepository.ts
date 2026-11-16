@@ -160,6 +160,7 @@ export class ProjectRepository {
       glossary: [],
       lineages: [],
       plotlines: [],
+      notes: [],
       comments: [],
       cover: defaultCover(input.title.trim()),
       sheetTemplates: defaultSheetTemplates()
