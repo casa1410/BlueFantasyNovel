@@ -322,3 +322,127 @@
 .cover-fields .textarea {
   padding: 7px 10px;
 }
+
+/* ------------------------------------------------------------------------ */
+/* Colección: estantería y lista de tomos                                   */
+/* ------------------------------------------------------------------------ */
+
+.cover-mode button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.book-stage.is-static {
+  /* Del ancho del libro girado: el 3D sobresale sin ensanchar la balda. */
+  width: 100%;
+  padding: 18px 0 4px;
+  cursor: inherit;
+  pointer-events: none;
+}
+.spine-volume {
+  font-weight: 700;
+}
+.cover-shelf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 100%;
+}
+.cover-shelf-books {
+  display: flex;
+  align-items: flex-end;
+  justify-content: safe center;
+  max-width: 100%;
+  padding: 0 40px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.cover-shelf-book {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.cover-shelf-book:hover {
+  transform: translateY(-6px);
+}
+.cover-shelf-book.is-selected::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 20%;
+  right: 20%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+.cover-shelf-book .book-shadow {
+  display: none;
+}
+.cover-shelf-plank {
+  width: calc(100% + 40px);
+  min-width: 320px;
+  height: 14px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #7a5532, #4a311b);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+.cover-collection {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cover-collection-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: var(--radius-sm);
+}
+.cover-collection-row.is-selected {
+  background: var(--accent-soft);
+}
+.cover-collection-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.cover-collection-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cover-fields label.cover-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.cover-check input {
+  accent-color: var(--accent);
+}
+.cover-pages {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.cover-pages input[type='range'] {
+  flex: 1;
+}
+.cover-pages .input {
+  width: 84px;
+}

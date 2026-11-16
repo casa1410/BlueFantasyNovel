@@ -7,7 +7,7 @@
  */
 import { assetUrl } from '@shared/assets'
 import { COVER_FONT_INFO, COVER_TEMPLATE_INFO } from '@shared/cover'
-import type { CoverDesign, Id } from '@shared/types'
+import type { CoverBook, Id } from '@shared/types'
 
 /** Posición vertical del título según `titlePosition` (fracción de la altura). */
 export const TITLE_Y = { top: 0.14, center: 0.42, bottom: 0.66 } as const
@@ -49,7 +49,7 @@ export function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth:
 /** Dibuja la portada en el rectángulo (x, y, w, h) de un contexto existente. */
 export async function paintFrontCover(
   ctx: CanvasRenderingContext2D,
-  cover: CoverDesign,
+  cover: CoverBook,
   projectId: Id,
   x: number,
   y: number,
@@ -127,7 +127,7 @@ export async function paintFrontCover(
 }
 
 /** Genera la portada como PNG (data URL) de 1600 × 2400 px. */
-export async function renderFrontCoverPng(cover: CoverDesign, projectId: Id): Promise<string> {
+export async function renderFrontCoverPng(cover: CoverBook, projectId: Id): Promise<string> {
   const canvas = document.createElement('canvas')
   canvas.width = 1600
   canvas.height = 2400

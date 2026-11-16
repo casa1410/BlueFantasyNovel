@@ -7,7 +7,7 @@
  * Los proyectos antiguos se actualizan al abrirse y se guardan ya migrados.
  */
 import { DEFAULT_CALENDAR } from '@shared/calendar'
-import { defaultCover } from '@shared/cover'
+import { completeCover, defaultCover } from '@shared/cover'
 import { completeSheetTemplates } from '@shared/sheets'
 import { CURRENT_SCHEMA_VERSION, type EntityCollection, type Project } from '@shared/types'
 import { withEntityDefaults } from './entityDefaults'
@@ -146,15 +146,3 @@ function complete<C extends EntityCollection, T>(collection: C, list: T[] | unde
   return (list ?? []).map((entity) => withEntityDefaults(collection, entity as object) as T)
 }
 
-/** Portada con todos sus campos (y sus tres caras completas). */
-function completeCover(cover: Project['cover'] | undefined, title: string | undefined): Project['cover'] {
-  const base = defaultCover(title ?? '')
-  if (!cover) return base
-  return {
-    ...base,
-    ...cover,
-    front: { ...base.front, ...cover.front },
-    spine: { ...base.spine, ...cover.spine },
-    back: { ...base.back, ...cover.back }
-  }
-}

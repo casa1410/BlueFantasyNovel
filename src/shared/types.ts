@@ -573,7 +573,8 @@ export interface CoverFace {
   dim: number
 }
 
-export interface CoverDesign {
+/** Diseño de un libro (el de esta historia o un tomo de la colección). */
+export interface CoverBook {
   template: CoverTemplate
   front: CoverFace
   spine: CoverFace
@@ -586,6 +587,22 @@ export interface CoverDesign {
   /** Tamaño del título relativo al ancho de la portada (0,06–0,16). */
   titleSize: number
   titlePosition: 'top' | 'center' | 'bottom'
+  /** Páginas del libro impreso (grosor del lomo). 0 = calcularlas según lo escrito. */
+  pages: number
+  /** Número del tomo en el lomo (p. ej. «I», «2», «Libro uno»); '' = ninguno. */
+  volumeLabel: string
+}
+
+/** Otro tomo de la colección, solo para visualizarla (no tiene capítulos). */
+export interface CoverVolume extends CoverBook {
+  id: Id
+}
+
+/** Cubierta de la historia y, opcionalmente, el resto de tomos de la colección. */
+export interface CoverDesign extends CoverBook {
+  volumes: CoverVolume[]
+  /** Lugar de esta historia en la estantería (0 = primera). */
+  shelfPosition: number
 }
 
 /** Resumen ligero para la biblioteca (no incluye capítulos ni personajes). */

@@ -4,12 +4,13 @@
  * espacio. Se gira arrastrando con el ratón.
  *
  * Las medidas son las de un libro real de 15,24 × 22,86 cm; el grosor del lomo
- * se calcula a partir de las palabras del manuscrito (ver shared/cover.ts).
+ * sale de las páginas (escritas a mano o estimadas por las palabras; ver
+ * shared/cover.ts).
  */
 import { useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { assetUrl } from '@shared/assets'
 import { BOOK_HEIGHT_CM, BOOK_WIDTH_CM, COVER_FONT_INFO, COVER_TEMPLATE_INFO } from '@shared/cover'
-import type { CoverDesign, CoverFace, Id } from '@shared/types'
+import type { CoverBook, CoverFace, Id } from '@shared/types'
 import { hexToRgba, TITLE_Y } from '@renderer/lib/coverRender'
 
 export interface BookRotation {
@@ -25,7 +26,7 @@ export const VIEWS: Record<'front' | 'spine' | 'back', BookRotation> = {
 }
 
 interface Book3DProps {
-  cover: CoverDesign
+  cover: CoverBook
   projectId: Id
   /** Grosor del lomo en cm. */
   spineCm: number
@@ -33,14 +34,16 @@ interface Book3DProps {
   onRotationChange: (rotation: BookRotation) => void
   /** Altura del libro en píxeles de pantalla. */
   height?: number
+  /** false = solo se muestra (estantería): no se gira al arrastrar. */
+  interactive?: boolean
 }
 
-export function Book3D({ cover, projectId, spineCm, rotation, onRotationChange, height = 440 }: Book3DProps) {
+export function Book3D({ cover, projectId, spineCm, rotation, onRotationChange, height = 440, interactive = true }: Book3DProps) {
   const [dragging, setDragging] = useState(false)
   const start = useRef<{ x: number; y: number; rotation: BookRotation } | null>(null)
   const W = Math.round((height * BOOK_WIDTH_CM) / BOOK_HEIGHT_CM)
   const H = height
-  const D = Math.max(10, Math.round((height * spineCm) / BOOK_HEIGHT_CM))
+  const D = Math.max(6, Math.round((height * spineCm) / BOOK_HEIGHT_CM))
 
   const onPointerDown = (e: PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -65,11 +68,8 @@ export function Book3D({ cover, projectId, spineCm, rotation, onRotationChange, 
 
   return (
     <div
-      className={`book-stage ${dragging ? 'is-dragging' : ''}`}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
+      className={`book-stage ${dragging ? 'is-dragging' : ''} ${interactive ? '' : 'is-static'}`}
+      {...(interactive && { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: onPointerUp })}
     >
       <div className="book" style={{ width: W, height: H, transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)` }}>
         {/* Portada */}
@@ -95,7 +95,7 @@ export function Book3D({ cover, projectId, spineCm, rotation, onRotationChange, 
 }
 
 /** Fondo común de una cara: degradado de plantilla + imagen + oscurecido. */
-function faceBackground(cover: CoverDesign, face: CoverFace, projectId: Id): CSSProperties {
+function faceBackground(cover: CoverBook, face: CoverFace, projectId: Id): CSSProperties {
   const { background } = COVER_TEMPLATE_INFO[cover.template]
   const layers = [`linear-gradient(180deg, ${background[0]}, ${background[1]})`]
   if (face.image) {
@@ -108,7 +108,7 @@ function faceBackground(cover: CoverDesign, face: CoverFace, projectId: Id): CSS
   return { background: layers.join(', ') }
 }
 
-function FrontFace({ cover, projectId, width }: { cover: CoverDesign; projectId: Id; width: number }) {
+function FrontFace({ cover, projectId, width }: { cover: CoverBook; projectId: Id; width: number }) {
   const template = COVER_TEMPLATE_INFO[cover.template]
   const font = COVER_FONT_INFO[cover.font]
   const inset = width * 0.045
@@ -138,13 +138,18 @@ function FrontFace({ cover, projectId, width }: { cover: CoverDesign; projectId:
   )
 }
 
-function SpineFace({ cover, projectId, width, height }: { cover: CoverDesign; projectId: Id; width: number; height: number }) {
+function SpineFace({ cover, projectId, width, height }: { cover: CoverBook; projectId: Id; width: number; height: number }) {
   const template = COVER_TEMPLATE_INFO[cover.template]
   const font = COVER_FONT_INFO[cover.font]
   const size = Math.min(width * 0.55, 20)
   return (
     <div className="cover-face spine" style={{ ...faceBackground(cover, cover.spine, projectId), color: template.text, fontFamily: font.family }}>
       <div className="spine-text" style={{ width: height, fontSize: size, fontWeight: font.weight, textTransform: font.uppercase ? 'uppercase' : 'none' }}>
+        {cover.volumeLabel && (
+          <b className="spine-volume" style={{ fontSize: size * 0.8, color: template.accent }}>
+            {cover.volumeLabel}
+          </b>
+        )}
         <span>{cover.title}</span>
         {cover.author && <small style={{ fontSize: size * 0.7 }}>{cover.author}</small>}
       </div>
@@ -152,7 +157,7 @@ function SpineFace({ cover, projectId, width, height }: { cover: CoverDesign; pr
   )
 }
 
-function BackFace({ cover, projectId, width }: { cover: CoverDesign; projectId: Id; width: number }) {
+function BackFace({ cover, projectId, width }: { cover: CoverBook; projectId: Id; width: number }) {
   const template = COVER_TEMPLATE_INFO[cover.template]
   const font = COVER_FONT_INFO[cover.font]
   return (

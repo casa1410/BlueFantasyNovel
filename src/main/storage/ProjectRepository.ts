@@ -31,7 +31,7 @@ import { emptyDoc, toPlainText } from '@shared/richText'
 import { assertValidAssetRefs, collectAssetRefs } from '@shared/assetRefs'
 import { IMAGE_EXTENSIONS, isValidAssetFileName } from '@shared/assets'
 import { DEFAULT_CALENDAR } from '@shared/calendar'
-import { defaultCover } from '@shared/cover'
+import { completeCover, defaultCover } from '@shared/cover'
 import { SHEET_COLLECTIONS, completeSheetTemplates, defaultSheetTemplates, isCustomField, type SheetTemplates } from '@shared/sheets'
 import { computeScenes, manuscriptChapters, manuscriptWordCount } from '@shared/manuscript'
 import { createMentionMatcher, mentionTargets } from '@shared/mentions'
@@ -211,7 +211,7 @@ export class ProjectRepository {
       if (patch.sheetTemplates !== undefined) applySheetTemplates(project, completeSheetTemplates(patch.sheetTemplates))
       if (patch.cover !== undefined) {
         const before = collectAssetRefs(project.cover)
-        project.cover = { ...project.cover, ...patch.cover }
+        project.cover = completeCover({ ...project.cover, ...patch.cover }, project.title)
         unused = unreferencedAssets(project, before)
       }
       return project

@@ -2,9 +2,10 @@
  * Portada del libro: valores por defecto, plantillas de color, tipografías y
  * medidas físicas (para la vista 3D y para dibujarla en PNG).
  */
-import type { CoverDesign, CoverFont, CoverTemplate } from './types'
+import { COVER_FONTS, COVER_TEMPLATES, type CoverBook, type CoverDesign, type CoverFont, type CoverTemplate, type CoverVolume } from './types'
 
-export function defaultCover(title = ''): CoverDesign {
+/** Diseño de un libro con los valores por defecto. */
+export function defaultBook(title = ''): CoverBook {
   return {
     template: 'noche',
     front: { image: '', dim: 0.35 },
@@ -16,8 +17,64 @@ export function defaultCover(title = ''): CoverDesign {
     backText: '',
     font: 'serif-clasica',
     titleSize: 0.11,
-    titlePosition: 'top'
+    titlePosition: 'top',
+    pages: 0,
+    volumeLabel: ''
   }
+}
+
+export function defaultCover(title = ''): CoverDesign {
+  return { ...defaultBook(title), volumes: [], shelfPosition: 0 }
+}
+
+/** Tomos como máximo en la colección. */
+export const MAX_VOLUMES = 30
+export const MAX_PAGES = 3000
+
+const clampInt = (value: unknown, min: number, max: number, fallback: number) =>
+  typeof value === 'number' && Number.isFinite(value) ? Math.min(max, Math.max(min, Math.round(value))) : fallback
+const text = (value: unknown, fallback: string, max = 2000) => (typeof value === 'string' ? value.slice(0, max) : fallback)
+
+/** Un libro con todos sus campos válidos (lo que falte o no encaje, por defecto). */
+function completeBook(raw: unknown, title: string): CoverBook {
+  const base = defaultBook(title)
+  const c = (raw && typeof raw === 'object' ? raw : {}) as Partial<CoverBook>
+  const face = (key: 'front' | 'spine' | 'back') => {
+    const f = (c[key] && typeof c[key] === 'object' ? c[key] : {}) as Partial<CoverBook['front']>
+    return {
+      image: typeof f.image === 'string' ? f.image : '',
+      dim: typeof f.dim === 'number' && Number.isFinite(f.dim) ? Math.min(1, Math.max(0, f.dim)) : base[key].dim
+    }
+  }
+  return {
+    template: COVER_TEMPLATES.includes(c.template as CoverTemplate) ? (c.template as CoverTemplate) : base.template,
+    front: face('front'),
+    spine: face('spine'),
+    back: face('back'),
+    title: text(c.title, base.title, 300),
+    author: text(c.author, '', 300),
+    subtitle: text(c.subtitle, '', 300),
+    backText: text(c.backText, '', 5000),
+    font: COVER_FONTS.includes(c.font as CoverFont) ? (c.font as CoverFont) : base.font,
+    titleSize: typeof c.titleSize === 'number' && Number.isFinite(c.titleSize) ? Math.min(0.16, Math.max(0.06, c.titleSize)) : base.titleSize,
+    titlePosition: c.titlePosition === 'center' || c.titlePosition === 'bottom' ? c.titlePosition : 'top',
+    pages: clampInt(c.pages, 0, MAX_PAGES, 0),
+    volumeLabel: text(c.volumeLabel, '', 30)
+  }
+}
+
+/** Cubierta completa y válida a partir de lo guardado o de lo que envía la interfaz. */
+export function completeCover(raw: unknown, title = ''): CoverDesign {
+  const c = (raw && typeof raw === 'object' ? raw : {}) as Partial<CoverDesign>
+  const seen = new Set<string>()
+  const volumes: CoverVolume[] = []
+  for (const v of Array.isArray(c.volumes) ? c.volumes : []) {
+    const id = v && typeof v === 'object' && typeof v.id === 'string' ? v.id.slice(0, 64) : ''
+    if (!id || seen.has(id) || volumes.length >= MAX_VOLUMES) continue
+    seen.add(id)
+    volumes.push({ ...completeBook(v, ''), id })
+  }
+  return { ...completeBook(c, title), volumes, shelfPosition: clampInt(c.shelfPosition, 0, volumes.length, 0) }
 }
 
 export interface CoverTemplateInfo {
@@ -60,7 +117,17 @@ export function estimatedPages(words: number): number {
   return Math.max(24, Math.ceil(words / WORDS_PER_PAGE / 2) * 2)
 }
 
-/** Grosor del lomo en cm, según las páginas (con mínimo para que se vea). */
+/** Páginas de un libro: las que se hayan escrito a mano o, si no, las estimadas. */
+export function bookPages(book: Pick<CoverBook, 'pages'>, words: number): number {
+  return book.pages > 0 ? book.pages : estimatedPages(words)
+}
+
+/** Grosor del lomo en cm según las páginas (con mínimo para que se vea). */
+export function spineCmForPages(pages: number): number {
+  return Math.max(0.4, (Math.max(0, pages) / 2) * SHEET_THICKNESS_CM + 0.2)
+}
+
+/** Grosor del lomo en cm, según las páginas estimadas por las palabras. */
 export function spineThicknessCm(words: number): number {
-  return Math.max(1, (estimatedPages(words) / 2) * SHEET_THICKNESS_CM + 0.2)
+  return Math.max(1, spineCmForPages(estimatedPages(words)))
 }
