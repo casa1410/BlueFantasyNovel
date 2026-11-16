@@ -708,6 +708,15 @@ export interface AppSettings {
   }
 }
 
+/** "Abrir al iniciar Windows" (vive en el registro de Windows, no en settings.json). */
+export interface StartupState {
+  /** false en desarrollo o fuera de Windows. */
+  available: boolean
+  enabled: boolean
+  /** Versión portable: se registra la ruta del .exe; si se mueve, hay que volver a activarlo. */
+  portable: boolean
+}
+
 /** Carpeta sincronizada con un servicio en la nube, detectada en este equipo. */
 export interface CloudFolder {
   service: 'google-drive' | 'onedrive' | 'dropbox' | 'icloud'

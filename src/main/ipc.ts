@@ -15,6 +15,7 @@ import type { BackupService } from './backup'
 import { detectCloudFolders } from './cloudFolders'
 import { exportBible, exportProject } from './export'
 import type { SettingsStore } from './settings'
+import { getStartup, setStartup } from './startup'
 import { assertSafeId } from './storage/fsUtils'
 import type { ProjectRepository } from './storage/ProjectRepository'
 
@@ -115,6 +116,8 @@ export function registerIpcHandlers(repository: ProjectRepository, settings: Set
   // Ajustes
   handle(IPC.settingsGet, () => settings.get())
   handle(IPC.settingsUpdate, (_e, patch) => settings.update(patch))
+  handle(IPC.startupGet, () => getStartup())
+  handle(IPC.startupSet, (_e, enabled) => setStartup(enabled === true))
 
   // Copias de seguridad
   const pickFolder = async (event: IpcMainInvokeEvent, title: string, defaultPath?: string) => {

@@ -65,6 +65,10 @@ const api: BlueFantasyApi = {
     get: () => invoke(IPC.settingsGet),
     update: (patch) => invoke(IPC.settingsUpdate, patch)
   },
+  startup: {
+    get: () => invoke(IPC.startupGet),
+    set: (enabled) => invoke(IPC.startupSet, enabled)
+  },
   backup: {
     detectClouds: () => invoke(IPC.backupDetectClouds),
     useFolder: (folder) => invoke(IPC.backupUseFolder, folder),

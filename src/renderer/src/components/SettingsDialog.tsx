@@ -1,12 +1,15 @@
 /**
- * Ajustes: apariencia, editor y copias de seguridad.
+ * Ajustes: apariencia, editor, inicio con Windows y copias de seguridad.
  * Cada cambio se guarda al momento.
  */
+import { useEffect, useState } from 'react'
 import { Monitor, Moon, Sun } from 'lucide-react'
-import type { AppSettings, ThemePreference } from '@shared/types'
+import type { AppSettings, StartupState, ThemePreference } from '@shared/types'
+import { api, errorMessage } from '@renderer/lib/api'
 import { useSettings } from '@renderer/lib/settings'
 import { BackupPanel } from './BackupPanel'
 import { Modal } from './Modal'
+import { useToast } from './Toasts'
 import './settingsDialog.css'
 
 const THEMES: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
@@ -75,10 +78,49 @@ export function SettingsDialog({ onClose, onRestored }: SettingsDialogProps) {
         </p>
       </section>
 
+      <StartupSection />
+
       <section className="settings-section">
         <h3>Copias de seguridad</h3>
         <BackupPanel onRestored={onRestored} />
       </section>
     </Modal>
+  )
+}
+
+/** "Abrir al iniciar Windows" (desactivado por defecto). */
+function StartupSection() {
+  const [state, setState] = useState<StartupState | null>(null)
+  const [busy, setBusy] = useState(false)
+  const toast = useToast()
+
+  useEffect(() => {
+    api.startup.get().then(setState, () => setState(null))
+  }, [])
+
+  if (!state) return null
+  const toggle = async (enabled: boolean) => {
+    setBusy(true)
+    try {
+      setState(await api.startup.set(enabled))
+    } catch (error) {
+      toast.error(`No se pudo cambiar el inicio con Windows: ${errorMessage(error)}`)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="settings-section">
+      <h3>Inicio</h3>
+      <label className="settings-check">
+        <input type="checkbox" checked={state.enabled} disabled={!state.available || busy} onChange={(e) => toggle(e.target.checked)} />
+        Abrir BlueFantasyNovel al iniciar Windows
+      </label>
+      {!state.available && <p className="field-hint">Solo disponible en la aplicación instalada o portable (no en modo desarrollo).</p>}
+      {state.available && state.portable && (
+        <p className="field-hint">Versión portable: si mueves o renombras el .exe, vuelve a activar esta casilla.</p>
+      )}
+    </section>
   )
 }

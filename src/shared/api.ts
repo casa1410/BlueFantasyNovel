@@ -13,6 +13,7 @@
  */
 import type {
   AppSettings,
+  StartupState,
   AssetFileName,
   BibleFormat,
   CloudFolder,
@@ -79,6 +80,8 @@ export const IPC = {
 
   settingsGet: 'settings:get',
   settingsUpdate: 'settings:update',
+  startupGet: 'startup:get',
+  startupSet: 'startup:set',
 
   backupDetectClouds: 'backup:detect-clouds',
   backupUseFolder: 'backup:use-folder',
@@ -205,6 +208,11 @@ export interface BlueFantasyApi {
   settings: {
     get(): Promise<AppSettings>
     update(patch: Partial<AppSettings>): Promise<AppSettings>
+  }
+  startup: {
+    get(): Promise<StartupState>
+    /** Activa o desactiva que la app se abra al iniciar sesión en Windows. */
+    set(enabled: boolean): Promise<StartupState>
   }
   backup: {
     /** Google Drive, OneDrive, Dropbox o iCloud instalados en este equipo. */
