@@ -88,6 +88,8 @@ export const IPC = {
   backupChooseFolder: 'backup:choose-folder',
   backupRunNow: 'backup:run-now',
   backupRestore: 'backup:restore',
+  /** main -> interfaz: terminó una copia (bien o mal); lleva los ajustes nuevos. */
+  backupFinished: 'backup:finished',
 
   exportProject: 'export:project',
   exportBible: 'export:bible',
@@ -229,6 +231,8 @@ export interface BlueFantasyApi {
     runNow(): Promise<string>
     /** Elige una copia en un diálogo y restaura sus historias. Null si se cancela. */
     restore(): Promise<RestoreSummary | null>
+    /** Avisa cada vez que termina una copia (también las automáticas). Devuelve cómo dejar de escuchar. */
+    onFinished(callback: (settings: AppSettings) => void): () => void
   }
   exporter: {
     /**

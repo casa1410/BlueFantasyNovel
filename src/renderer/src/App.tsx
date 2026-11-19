@@ -7,6 +7,7 @@
  */
 import { useEffect, useState } from 'react'
 import type { Id } from '@shared/types'
+import { BackupWatcher } from './components/BackupWatcher'
 import { ToastProvider } from './components/Toasts'
 import { api } from './lib/api'
 import { flushAll } from './lib/pendingSaves'
@@ -28,6 +29,7 @@ export function App() {
 
   return (
     <ToastProvider>
+      <BackupWatcher />
       {openProjectId ? (
         <ProjectWorkspace key={openProjectId} projectId={openProjectId} onExit={() => setOpenProjectId(null)} />
       ) : (

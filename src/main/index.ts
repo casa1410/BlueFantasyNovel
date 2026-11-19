@@ -110,7 +110,12 @@ app.whenReady().then(() => {
   const libraryRoot = path.join(app.getPath('documents'), LIBRARY_FOLDER_NAME)
   const settings = new SettingsStore(app.getPath('userData'))
   // Borrar (o sustituir al restaurar) envía a la Papelera: se puede recuperar.
-  backups = new BackupService(libraryRoot, settings, (dir) => shell.trashItem(dir))
+  // Tras cada copia, la interfaz recibe los ajustes nuevos: si falló, avisa al momento.
+  const notifyBackup = () =>
+    void settings.get().then((s) => {
+      for (const win of BrowserWindow.getAllWindows()) if (!win.isDestroyed()) win.webContents.send(IPC.backupFinished, s)
+    })
+  backups = new BackupService(libraryRoot, settings, (dir) => shell.trashItem(dir), notifyBackup)
   const repository = new ProjectRepository({
     libraryRoot,
     removeDirectory: (dir) => shell.trashItem(dir),
@@ -122,6 +127,7 @@ app.whenReady().then(() => {
   createMainWindow()
   // Copia de seguridad diaria (si está activada), sin retrasar el arranque.
   setTimeout(() => void backups?.runOnStartup(), 5000)
+  setInterval(() => void backups?.runPeriodic(), 30 * 60 * 1000)
 
   // macOS: reabrir la ventana al pulsar el icono del dock.
   app.on('activate', () => {

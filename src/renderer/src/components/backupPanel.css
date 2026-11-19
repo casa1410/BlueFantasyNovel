@@ -130,6 +130,13 @@
 .backup-banner.is-error > svg {
   color: var(--danger);
 }
+.backup-banner.is-warning {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+.backup-banner.is-warning > svg {
+  color: var(--gold);
+}
 .backup-banner div {
   flex: 1;
   display: flex;

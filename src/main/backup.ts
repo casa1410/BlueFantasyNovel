@@ -12,7 +12,13 @@
  * Cuándo se copia (si las copias están activadas):
  *  - al abrir la aplicación, si la última copia tiene más de un día;
  *  - al cerrarla, si ha cambiado algo desde la última copia;
+ *  - con la aplicación abierta (se revisa cada media hora), si hay cambios y
+ *    la última copia tiene más de un día: así no se queda sin copia quien la
+ *    deja abierta varios días;
  *  - cuando el usuario pulsa "Hacer copia ahora".
+ *
+ * Tras cada intento (bien o mal) se llama a `onFinished`, que avisa a la
+ * interfaz para que muestre el error al momento.
  *
  * Qué se conserva: la copia más reciente de cada día, de los últimos
  * `keep` días con copia. El resto se borra.
@@ -37,7 +43,9 @@ export class BackupService {
     private readonly libraryRoot: string,
     private readonly settings: SettingsStore,
     /** Cómo apartar una historia que se va a sustituir al restaurar (Papelera). */
-    private readonly moveToTrash: (dir: string) => Promise<void>
+    private readonly moveToTrash: (dir: string) => Promise<void>,
+    /** Tras cada copia, salga bien o mal (para avisar a la interfaz). */
+    private readonly onFinished: () => void = () => undefined
   ) {}
 
   /** El repositorio avisa aquí de cada cambio guardado. */
@@ -57,6 +65,7 @@ export class BackupService {
   createBackup(): Promise<string> {
     this.running ??= this.copy().finally(() => {
       this.running = null
+      this.onFinished()
     })
     return this.running
   }
@@ -68,6 +77,15 @@ export class BackupService {
     const last = backup.lastBackupAt ? new Date(backup.lastBackupAt).getTime() : 0
     if (Date.now() - last < ONE_DAY_MS) return
     await this.createBackup().catch(() => undefined) // el error queda guardado en los ajustes
+  }
+
+  /** Con la app abierta: copia si hay cambios y la última tiene más de un día. Nunca lanza. */
+  async runPeriodic(): Promise<void> {
+    const { backup } = await this.settings.get()
+    if (!backup.enabled || !backup.folder || !this.dirty) return
+    const last = backup.lastBackupAt ? new Date(backup.lastBackupAt).getTime() : 0
+    if (Date.now() - last < ONE_DAY_MS) return
+    await this.createBackup().catch(() => undefined)
   }
 
   /** Copia al cerrar si hubo cambios en esta sesión. Nunca lanza. */

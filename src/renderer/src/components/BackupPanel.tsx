@@ -154,8 +154,15 @@ export function BackupPanel({ onRestored }: BackupPanelProps) {
               checked={backup.enabled}
               onChange={async (e) => replace(await api.settings.update({ backup: { ...backup, enabled: e.target.checked } }))}
             />
-            Copiar automáticamente al abrir y al cerrar la aplicación
+            Copiar automáticamente al abrir y al cerrar la aplicación (y una vez al día si la dejas abierta)
           </label>
+          {destination && (
+            <p className="field-hint">
+              <Cloud size={12} /> La copia se guarda en la carpeta de {destination.label} de este ordenador. Que llegue a internet depende de{' '}
+              {destination.label}: comprueba de vez en cuando que esté abierto, con la sesión iniciada, con espacio y sin avisos de error en su
+              icono (junto al reloj de Windows).
+            </p>
+          )}
           <p className="field-hint">
             <History size={12} /> Se conserva una copia por día de los últimos{' '}
             <input

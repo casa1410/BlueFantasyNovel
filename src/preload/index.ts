@@ -7,6 +7,7 @@
  */
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { IPC, type BlueFantasyApi } from '@shared/api'
+import type { AppSettings } from '@shared/types'
 
 const invoke = ipcRenderer.invoke.bind(ipcRenderer)
 
@@ -74,7 +75,12 @@ const api: BlueFantasyApi = {
     useFolder: (folder) => invoke(IPC.backupUseFolder, folder),
     chooseFolder: () => invoke(IPC.backupChooseFolder),
     runNow: () => invoke(IPC.backupRunNow),
-    restore: () => invoke(IPC.backupRestore)
+    restore: () => invoke(IPC.backupRestore),
+    onFinished: (callback) => {
+      const listener = (_event: unknown, settings: AppSettings) => callback(settings)
+      ipcRenderer.on(IPC.backupFinished, listener)
+      return () => ipcRenderer.removeListener(IPC.backupFinished, listener)
+    }
   },
   exporter: {
     exportProject: (projectId, format, chapterIds) => invoke(IPC.exportProject, projectId, format, chapterIds),
