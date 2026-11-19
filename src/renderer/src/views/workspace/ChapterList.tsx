@@ -7,8 +7,10 @@
  */
 import { useState } from 'react'
 import { ArrowDownToLine, ArrowUpFromLine, ChevronDown, GripVertical, Plus, Trash2 } from 'lucide-react'
+import { approxPages, pagesLabel } from '@shared/text'
 import type { ChapterMeta, Id } from '@shared/types'
 import { ConfirmDialog } from '@renderer/components/ConfirmDialog'
+import { plural } from '@renderer/lib/format'
 import { useLocalPreference } from '@renderer/hooks/useLocalPreference'
 
 interface ChapterListProps {
@@ -162,7 +164,10 @@ function ChapterItems({ items, numbered, activeChapterId, onReorderList, onAskDe
                   {chapter.title}
                 </span>
               )}
-              <span className="chapter-words">{chapter.wordCount.toLocaleString('es-ES')}</span>
+              <span className="chapter-words" title={`${plural(chapter.wordCount, 'palabra')} · ${pagesLabel(chapter.wordCount)}`}>
+                {chapter.wordCount.toLocaleString('es-ES')}
+                {chapter.wordCount > 0 && <span className="chapter-pages"> · {approxPages(chapter.wordCount)} p.</span>}
+              </span>
               <button
                 className="icon-btn chapter-action"
                 title={chapter.draft ? 'Pasar al manuscrito' : 'Mover a borradores'}

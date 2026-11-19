@@ -221,6 +221,9 @@
   color: var(--text-faint);
   font-variant-numeric: tabular-nums;
 }
+.chapter-pages {
+  opacity: 0.75;
+}
 .chapter-item:hover .chapter-words {
   display: none;
 }

@@ -1,7 +1,7 @@
 import { AlertTriangle, Check, Flame, Loader2, Target, Timer } from 'lucide-react'
 import { currentStreak, todayKey } from '@shared/dates'
 import { manuscriptWordCount } from '@shared/manuscript'
-import { readingMinutes } from '@shared/text'
+import { pagesLabel, readingMinutes, WORDS_PER_PAGE } from '@shared/text'
 import type { ChapterMeta, Project } from '@shared/types'
 import type { SaveStatus } from '@renderer/hooks/useDebouncedSave'
 import { plural } from '@renderer/lib/format'
@@ -32,12 +32,14 @@ export function StatusBar({ project, chapter, liveWords, saveStatus, sprint }: S
   return (
     <footer className="status-bar">
       <span title="Palabras de este capítulo">
-        <strong>{liveWords.toLocaleString('es-ES')}</strong> palabras · {readingMinutes(liveWords)} min de lectura
+        <strong>{liveWords.toLocaleString('es-ES')}</strong> palabras ·{' '}
+        <span title={`Páginas aproximadas de este capítulo impreso (unas ${WORDS_PER_PAGE} palabras por página)`}>{pagesLabel(liveWords)}</span> ·{' '}
+        {readingMinutes(liveWords)} min de lectura
       </span>
       <span className="faint">|</span>
-      <span title="Palabras del manuscrito (sin borradores)">
+      <span title={`Palabras del manuscrito (sin borradores). Páginas aproximadas del libro impreso, a unas ${WORDS_PER_PAGE} palabras por página.`}>
         {chapter.draft && <strong className="status-draft">Borrador · </strong>}
-        {plural(total, 'palabra')} en el manuscrito
+        {plural(total, 'palabra')} en el manuscrito · {pagesLabel(total)}
       </span>
       <span className="faint">|</span>
       <span title="Palabras nuevas escritas hoy" className="status-today-wrap">

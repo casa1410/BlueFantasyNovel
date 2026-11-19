@@ -1,5 +1,6 @@
 import { Trash2 } from 'lucide-react'
 import { assetUrl } from '@shared/assets'
+import { pagesLabel } from '@shared/text'
 import type { ProjectSummary } from '@shared/types'
 import { coverGradient, initials } from '@renderer/lib/covers'
 import { plural, relativeTime } from '@renderer/lib/format'
@@ -50,6 +51,12 @@ export function ProjectCard({ project, sagaName, onOpen, onDelete }: ProjectCard
 
         <div className="project-meta">
           <span>{plural(project.wordCount, 'palabra')}</span>
+          {project.wordCount > 0 && (
+            <>
+              <span>·</span>
+              <span title="Páginas aproximadas del libro impreso">{pagesLabel(project.wordCount)}</span>
+            </>
+          )}
           <span>·</span>
           <span>{plural(project.chapterCount, 'capítulo')}</span>
           <span>·</span>

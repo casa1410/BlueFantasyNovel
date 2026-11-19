@@ -2,6 +2,7 @@
  * Barras horizontales con las palabras de cada capítulo, en orden de lectura.
  * Sirve para detectar de un vistazo capítulos descompensados.
  */
+import { pagesLabel } from '@shared/text'
 import type { ChapterMeta } from '@shared/types'
 import { useChartTooltip } from './ChartTooltip'
 
@@ -24,6 +25,7 @@ export function ChapterBars({ chapters }: { chapters: ChapterMeta[] }) {
               e,
               <>
                 <strong>{chapter.wordCount.toLocaleString('es-ES')} palabras</strong>
+                <span>{pagesLabel(chapter.wordCount)}</span>
                 <span>
                   {chapter.wordCount >= average ? '+' : ''}
                   {(chapter.wordCount - average).toLocaleString('es-ES')} respecto a la media
@@ -42,7 +44,7 @@ export function ChapterBars({ chapters }: { chapters: ChapterMeta[] }) {
           <span className="chapter-bar-value">{chapter.wordCount.toLocaleString('es-ES')}</span>
         </div>
       ))}
-      <p className="chapter-bars-footnote faint">Media: {average.toLocaleString('es-ES')} palabras por capítulo</p>
+      <p className="chapter-bars-footnote faint">Media: {average.toLocaleString('es-ES')} palabras por capítulo ({pagesLabel(average)})</p>
       {tooltip.element}
     </div>
   )

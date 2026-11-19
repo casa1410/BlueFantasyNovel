@@ -2,6 +2,7 @@
  * Portada del libro: valores por defecto, plantillas de color, tipografías y
  * medidas físicas (para la vista 3D y para dibujarla en PNG).
  */
+import { WORDS_PER_PAGE } from './text'
 import { COVER_FONTS, COVER_TEMPLATES, type CoverBook, type CoverDesign, type CoverFont, type CoverTemplate, type CoverVolume } from './types'
 
 /** Diseño de un libro con los valores por defecto. */
@@ -108,7 +109,6 @@ export const COVER_FONT_INFO: Record<CoverFont, { label: string; family: string;
 /** Formato físico: 15,24 × 22,86 cm (6 × 9 pulgadas), el habitual en novela. */
 export const BOOK_WIDTH_CM = 15.24
 export const BOOK_HEIGHT_CM = 22.86
-const WORDS_PER_PAGE = 280
 /** Grosor de una hoja de papel de 80 g (dos páginas), en cm. */
 const SHEET_THICKNESS_CM = 0.01
 
