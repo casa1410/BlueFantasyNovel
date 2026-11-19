@@ -17,7 +17,7 @@ import { api, errorMessage } from '@renderer/lib/api'
 import { plural } from '@renderer/lib/format'
 import { flushAll } from '@renderer/lib/pendingSaves'
 
-const OPTIONS: SearchOptions = { caseSensitive: true, wholeWord: true }
+const OPTIONS: SearchOptions = { caseSensitive: true, wholeWord: true, exactAccents: true }
 
 interface RenameDialogProps {
   projectId: string

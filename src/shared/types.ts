@@ -637,6 +637,8 @@ export interface ProjectSummary {
   coverImage: AssetFileName
   /** Saga a la que pertenece o null. */
   sagaId: Id | null
+  /** Palabras nuevas por día (para las estadísticas globales de la biblioteca). */
+  dailyWords: Record<DayKey, number>
   updatedAt: IsoDateTime
 }
 
@@ -690,6 +692,11 @@ export interface ChapterVersion {
 export interface SearchOptions {
   caseSensitive: boolean
   wholeWord: boolean
+  /**
+   * true = la tilde cuenta ("Ángel" no encuentra "angel"). Por defecto no
+   * cuenta; el cambio de nombre masivo sí la exige, para no tocar otra palabra.
+   */
+  exactAccents?: boolean
 }
 
 export interface SearchMatch {

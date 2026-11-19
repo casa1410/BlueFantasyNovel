@@ -1044,6 +1044,7 @@ function toSummary(project: Project, sagaId: Id | null): ProjectSummary {
     creatureCount: project.creatures.length,
     coverImage: project.cover.front.image,
     sagaId,
+    dailyWords: project.dailyWords,
     updatedAt: project.updatedAt
   }
 }
