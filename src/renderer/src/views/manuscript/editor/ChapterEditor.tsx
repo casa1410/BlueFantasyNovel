@@ -61,6 +61,8 @@ export function ChapterEditor(props: ChapterEditorProps) {
   const [dialog, setDialog] = useState<'history' | null>(null)
   const [activeCommentId, setActiveCommentId] = useState<Id | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
+  /** El último clic empezó en el hueco alrededor del texto (no en el texto). */
+  const pressedOnGap = useRef(false)
   const [selectedText, setSelectedText] = useState('')
   /** Barra de Ctrl+F: abierta o no, texto inicial y "pulsación" para volver a darle el foco. */
   const [find, setFind] = useState<{ query: string; nonce: number } | null>(null)
@@ -161,7 +163,16 @@ export function ChapterEditor(props: ChapterEditorProps) {
 
   /** Clic en un fragmento comentado: abre su comentario en el panel. */
   const onEditorClick = (event: MouseEvent) => {
-    if (event.target === event.currentTarget) editor?.commands.focus('end')
+    // Clic en el hueco bajo el texto: el cursor va al final. Solo si el clic
+    // empezó ahí mismo (al arrastrar para seleccionar y soltar fuera del texto,
+    // el navegador también lanza un "click" sobre el hueco, y saltar al final
+    // perdía la selección).
+    const startedOnGap = pressedOnGap.current
+    pressedOnGap.current = false
+    if (startedOnGap && event.target === event.currentTarget && editor) {
+      const bottom = editor.view.dom.getBoundingClientRect().bottom
+      if (event.clientY > bottom) editor.commands.focus('end')
+    }
     const marked = (event.target as HTMLElement).closest<HTMLElement>('[data-comment-id]')
     if (!marked) return
     setShowReference(true)
@@ -227,6 +238,7 @@ export function ChapterEditor(props: ChapterEditorProps) {
         <div
           ref={scrollRef}
           className="editor-scroll"
+          onMouseDown={(e) => (pressedOnGap.current = e.target === e.currentTarget)}
           onClick={onEditorClick}
           onMouseOver={onMouseOver}
           onMouseLeave={() => setHovered(null)}
