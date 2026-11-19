@@ -279,3 +279,63 @@
   width: 26px;
   height: 26px;
 }
+
+/* Resumen global (todas las historias) */
+.library-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr)) minmax(200px, 1.6fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.library-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.library-stat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+.library-stat-value {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.library-stat-value.is-today {
+  color: var(--success);
+}
+.library-stat .lucide-flame {
+  color: var(--gold);
+}
+.library-stat small {
+  font-size: 12px;
+}
+.library-bars {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  min-height: 44px;
+}
+.library-bar {
+  flex: 1;
+  border-radius: 2px;
+  background: var(--border);
+}
+.library-bar.has-words {
+  background: var(--accent);
+}
+@media (max-width: 1000px) {
+  .library-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .library-stat-bars {
+    grid-column: 1 / -1;
+  }
+}

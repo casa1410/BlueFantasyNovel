@@ -2,7 +2,7 @@
  * Biblioteca: pantalla inicial con todas las historias del usuario.
  */
 import { useCallback, useEffect, useState } from 'react'
-import { AlertTriangle, BookOpen, Cloud, FolderOpen, Library, Plus, RotateCcw, Settings, ShieldCheck, Sparkles } from 'lucide-react'
+import { AlertTriangle, BookOpen, Cloud, FolderOpen, History, Library, Plus, RotateCcw, Settings, ShieldCheck, Sparkles } from 'lucide-react'
 import type { Id, ProjectSummary, Saga } from '@shared/types'
 import { ConfirmDialog } from '@renderer/components/ConfirmDialog'
 import { BackupPanel } from '@renderer/components/BackupPanel'
@@ -13,10 +13,15 @@ import { relativeTime } from '@renderer/lib/format'
 import { useSettings } from '@renderer/lib/settings'
 import { useToast } from '@renderer/components/Toasts'
 import { api, errorMessage } from '@renderer/lib/api'
+import { LibraryStats } from './LibraryStats'
 import { NewProjectDialog } from './NewProjectDialog'
 import { ProjectCard } from './ProjectCard'
 import { SagasDialog } from './SagasDialog'
 import './library.css'
+
+/** Días sin copia (habiendo cambios) a partir de los cuales se avisa. */
+const STALE_BACKUP_DAYS = 3
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
 
 interface LibraryViewProps {
   onOpenProject: (projectId: Id) => void
@@ -34,6 +39,28 @@ export function LibraryView({ onOpenProject }: LibraryViewProps) {
   const { settings } = useSettings()
   const backup = settings?.backup
   const toast = useToast()
+  const [copying, setCopying] = useState(false)
+
+  // Copias activadas y sin error, pero hace días que no se hace ninguna y
+  // desde entonces se ha cambiado alguna historia.
+  const lastCopy = backup?.lastBackupAt ? Date.parse(backup.lastBackupAt) : 0
+  const daysWithoutCopy = lastCopy ? Math.floor((Date.now() - lastCopy) / ONE_DAY_MS) : 0
+  const staleBackup =
+    Boolean(backup?.enabled && backup.folder && !backup.lastError && lastCopy) &&
+    daysWithoutCopy >= STALE_BACKUP_DAYS &&
+    Boolean(projects?.some((p) => Date.parse(p.updatedAt) > lastCopy))
+
+  const copyNow = async () => {
+    setCopying(true)
+    try {
+      await api.backup.runNow()
+      toast.success('Copia de seguridad hecha')
+    } catch {
+      // El aviso del fallo lo muestra BackupWatcher.
+    } finally {
+      setCopying(false)
+    }
+  }
 
   const reload = useCallback(async () => {
     try {
@@ -127,7 +154,21 @@ export function LibraryView({ onOpenProject }: LibraryViewProps) {
         </div>
       )}
 
+      {staleBackup && (
+        <div className="backup-banner is-warning">
+          <History size={24} />
+          <div>
+            <strong>Hace {daysWithoutCopy} días que no se hace una copia de seguridad</strong>
+            <small>Has cambiado historias desde entonces. Haz una ahora para no perder ese trabajo si el ordenador falla.</small>
+          </div>
+          <button className="btn btn-primary btn-sm" onClick={copyNow} disabled={copying}>
+            {copying ? 'Copiando…' : 'Hacer copia ahora'}
+          </button>
+        </div>
+      )}
+
       <main className="library-content">
+        {projects && projects.length > 0 && <LibraryStats projects={projects} />}
         {projects === null ? null : projects.length === 0 ? (
           <div className="empty-state library-empty">
             <BookOpen size={44} />
