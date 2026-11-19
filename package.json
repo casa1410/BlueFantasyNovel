@@ -1,7 +1,7 @@
 {
   "name": "bluefantasynovel",
   "productName": "BlueFantasyNovel",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "Estudio de escritura gratuito y sin conexión para novelistas: manuscrito, personajes y worldbuilding en tu ordenador.",
   "license": "Unlicense",
   "main": "./out/main/index.js",
